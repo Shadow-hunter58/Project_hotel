@@ -350,3 +350,49 @@
     color: #ffffff;
   }
 }
+
+/* ═══ Print Styles for Official Booking Receipt ═══ */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  header, footer, .no-print, nav {
+    display: none !important;
+  }
+
+  .print-receipt-container {
+    display: block !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    padding: 2rem !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  .print-receipt-container * {
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  .print-receipt-container .text-amber-400,
+  .print-receipt-container .text-amber-300,
+  .print-receipt-container .text-amber-500 {
+    color: #b45309 !important;
+    font-weight: 700 !important;
+  }
+
+  .print-receipt-container .bg-slate-950,
+  .print-receipt-container .bg-slate-900,
+  .print-receipt-container .bg-white\/5 {
+    background-color: #f8fafc !important;
+  }
+}
+
