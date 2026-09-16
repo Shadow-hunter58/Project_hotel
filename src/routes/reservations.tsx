@@ -482,39 +482,33 @@ function ReservationsPage() {
         intro="Direct booking guaranteed with immediate front-desk recording. Best rates, zero broker commissions, and hassle-free stay arrangements."
       />
 
-      <section className="relative min-h-[70vh] bg-slate-950 py-12 sm:py-16 md:py-24 text-slate-100">
+      <section className="relative min-h-[70vh] bg-[#0a0d14] py-12 sm:py-16 text-slate-100 selection:bg-amber-400 selection:text-slate-950">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           
           {/* Main Mode Tabs */}
           <div className="mb-10 flex justify-center">
-            <div className="inline-flex rounded-xl bg-slate-950/80 p-1.5 ring-1 ring-white/10 backdrop-blur-md">
+            <div className="inline-flex rounded-full bg-white/[0.04] p-1 border border-white/[0.08] backdrop-blur-md">
               <button
                 type="button"
                 onClick={() => setActiveTab("book")}
-                className={`flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-medium transition-all ${
+                className={`rounded-full px-6 py-2.5 text-xs font-semibold tracking-wider uppercase transition-all ${
                   activeTab === "book"
-                    ? "bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold shadow-md"
+                    ? "bg-amber-400 text-slate-950 shadow-md"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span>New Reservation</span>
+                New Reservation
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("manage")}
-                className={`flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-medium transition-all ${
+                className={`rounded-full px-6 py-2.5 text-xs font-semibold tracking-wider uppercase transition-all ${
                   activeTab === "manage"
-                    ? "bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold shadow-md"
+                    ? "bg-amber-400 text-slate-950 shadow-md"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                <span>Look Up & Pay Existing Reservation</span>
+                Find & Pay Booking
               </button>
             </div>
           </div>
@@ -524,50 +518,50 @@ function ReservationsPage() {
             <div className="space-y-8">
               {/* Stepper Header */}
               {step < 4 && (
-                <div className="glass-card rounded-2xl p-4 sm:p-6">
-                  <div className="flex items-center justify-between">
+                <div className="editorial-card rounded-2xl p-4 sm:p-5">
+                  <div className="flex items-center justify-between overflow-x-auto no-scrollbar gap-3">
                     {[
-                      { num: 1, label: "Dates & Guests" },
-                      { num: 2, label: "Choose Room" },
-                      { num: 3, label: "Guest Information" },
-                      { num: 4, label: "Confirmation & Payment" },
+                      { num: 1, label: "Stay Dates" },
+                      { num: 2, label: "Choose Suite" },
+                      { num: 3, label: "Guest Details" },
+                      { num: 4, label: "Confirmation" },
                     ].map((s, idx) => (
-                      <div key={s.num} className="flex items-center">
+                      <div key={s.num} className="flex items-center shrink-0">
                         <button
                           type="button"
                           disabled={s.num >= step}
                           onClick={() => {
                             if (s.num < step) setStep(s.num as 1 | 2 | 3 | 4);
                           }}
-                          className={`flex flex-col items-center gap-1.5 sm:flex-row sm:gap-3 transition-opacity ${
+                          className={`flex items-center gap-2.5 transition-opacity ${
                             s.num < step ? "cursor-pointer hover:opacity-80" : "cursor-default"
                           }`}
                         >
                           <span
-                            className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all ${
+                            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
                               step === s.num
-                                ? "bg-amber-400 text-slate-950 ring-4 ring-amber-400/20"
+                                ? "bg-amber-400 text-slate-950 ring-2 ring-amber-400/20"
                                 : step > s.num
-                                ? "bg-emerald-500 text-white hover:ring-2 hover:ring-emerald-400/50"
-                                : "bg-white/10 text-slate-400"
+                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                : "bg-white/5 text-slate-500 border border-white/10"
                             }`}
                           >
-                            {step > s.num ? "✓" : s.num}
+                            {step > s.num ? "✓" : `0${s.num}`}
                           </span>
                           <span
-                            className={`hidden text-xs font-medium tracking-wide md:inline ${
+                            className={`text-xs font-medium tracking-wide ${
                               step === s.num
-                                ? "text-amber-400 font-semibold"
+                                ? "text-amber-300 font-semibold"
                                 : step > s.num
-                                ? "text-emerald-300 hover:text-emerald-200 underline decoration-dotted underline-offset-4"
-                                : "text-slate-400"
+                                ? "text-slate-300"
+                                : "text-slate-500"
                             }`}
                           >
                             {s.label}
                           </span>
                         </button>
                         {idx < 3 && (
-                          <div className={`mx-2 h-0.5 w-6 sm:w-12 lg:w-20 ${step > idx + 1 ? "bg-emerald-500/50" : "bg-white/10"}`} />
+                          <div className="mx-3 sm:mx-6 h-px w-5 sm:w-10 bg-white/[0.08]" />
                         )}
                       </div>
                     ))}
@@ -577,17 +571,17 @@ function ReservationsPage() {
 
               {/* STEP 1: DATES & SEARCH */}
               {step === 1 && (
-                <div className="glass-card rounded-2xl p-6 sm:p-10">
+                <div className="editorial-card rounded-2xl p-6 sm:p-10">
                   <div className="mb-6">
-                    <h2 className="font-serif text-2xl font-semibold text-white">Select Your Stay Dates</h2>
+                    <h2 className="font-serif text-2xl font-medium text-white">Select Your Stay Dates</h2>
                     <p className="mt-1 text-sm text-slate-400">
-                      Check-in begins at 12:00 PM. Check-out is 11:00 AM. Free breakfast included with every room.
+                      Check-in from 12:00 PM. Check-out until 11:00 AM. Complimentary South Indian breakfast included.
                     </p>
                   </div>
 
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-amber-400/90">
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
                         Check-in Date
                       </label>
                       <input
@@ -595,12 +589,12 @@ function ReservationsPage() {
                         min={safeToday()}
                         value={checkIn}
                         onChange={(e) => handleCheckInChange(e.target.value)}
-                        className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400"
+                        className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-amber-400/90">
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
                         Check-out Date
                       </label>
                       <input
@@ -608,18 +602,18 @@ function ReservationsPage() {
                         min={safeAddDays(checkIn, 1)}
                         value={checkOut}
                         onChange={(e) => handleCheckOutChange(e.target.value)}
-                        className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400"
+                        className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-amber-400/90">
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
                         Adults (12+ yrs)
                       </label>
                       <select
                         value={adults}
                         onChange={(e) => setAdults(Number(e.target.value))}
-                        className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400"
+                        className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                       >
                         {[1, 2, 3, 4, 5, 6].map((n) => (
                           <option key={n} value={n} className="bg-slate-900 text-white">
@@ -630,13 +624,13 @@ function ReservationsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-amber-400/90">
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
                         Children (under 12)
                       </label>
                       <select
                         value={children}
                         onChange={(e) => setChildren(Number(e.target.value))}
-                        className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400"
+                        className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                       >
                         {[0, 1, 2, 3].map((n) => (
                           <option key={n} value={n} className="bg-slate-900 text-white">
@@ -647,12 +641,12 @@ function ReservationsPage() {
                     </div>
                   </div>
 
-                  <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row">
-                    <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <span className="rounded-lg bg-amber-400/10 px-3 py-1 font-semibold text-amber-300">
+                  <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/[0.08] pt-6 sm:flex-row">
+                    <div className="flex items-center gap-3 text-xs text-slate-300">
+                      <span className="pill-tag">
                         {nights} {nights === 1 ? "Night" : "Nights"}
                       </span>
-                      <span>
+                      <span className="text-slate-400">
                         {safePrettyDate(checkIn)} → {safePrettyDate(checkOut)}
                       </span>
                     </div>
@@ -661,7 +655,7 @@ function ReservationsPage() {
                       type="button"
                       disabled={loading}
                       onClick={handleSearch}
-                      className="shimmer-btn flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 px-8 py-3.5 text-xs font-bold uppercase tracking-[0.16em] text-slate-950 shadow-xl transition-all sm:w-auto"
+                      className="champagne-btn flex w-full items-center justify-center gap-2 rounded-xl px-7 py-3 text-xs uppercase tracking-wider sm:w-auto"
                     >
                       {loading ? (
                         <>
@@ -675,7 +669,7 @@ function ReservationsPage() {
                         <>
                           <span>Check Room Availability</span>
                           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                           </svg>
                         </>
                       )}
@@ -683,7 +677,7 @@ function ReservationsPage() {
                   </div>
 
                   {searchError && (
-                    <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-300">
+                    <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-950/30 p-3.5 text-xs text-rose-300">
                       {searchError}
                     </div>
                   )}
@@ -720,25 +714,23 @@ function ReservationsPage() {
                         return (
                           <div
                             key={room.room_type_id}
-                            className={`glass-card relative flex flex-col overflow-hidden rounded-2xl transition-all ${
-                              isSelected
-                                ? "ring-2 ring-amber-400 shadow-2xl scale-[1.01]"
-                                : "hover:border-white/20"
+                            className={`editorial-card relative flex flex-col overflow-hidden rounded-2xl ${
+                              isSelected ? "!border-amber-400/60 ring-1 ring-amber-400/40" : ""
                             }`}
                           >
-                            <div className="relative h-48 w-full overflow-hidden">
+                            <div className="relative h-44 w-full overflow-hidden bg-slate-900">
                               <img
                                 src={getImageForRoom(room.name)}
                                 alt={room.name}
-                                className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                                className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.03]"
                               />
                               <div className="absolute top-3 right-3">
                                 {isAvailable ? (
-                                  <span className="rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-semibold text-white shadow backdrop-blur-md">
-                                    {availableUnits} Available
+                                  <span className="rounded-full bg-emerald-500/80 px-3 py-0.5 text-[11px] font-medium text-white shadow backdrop-blur-md">
+                                    {availableUnits} Units Left
                                   </span>
                                 ) : (
-                                  <span className="rounded-full bg-rose-600/90 px-3 py-1 text-xs font-semibold text-white shadow backdrop-blur-md">
+                                  <span className="rounded-full bg-rose-600/80 px-3 py-0.5 text-[11px] font-medium text-white shadow backdrop-blur-md">
                                     Sold Out
                                   </span>
                                 )}
@@ -747,24 +739,24 @@ function ReservationsPage() {
 
                             <div className="flex flex-1 flex-col p-5">
                               <div className="flex-1">
-                                <h3 className="font-serif text-xl font-semibold text-white">{room.name}</h3>
-                                <p className="mt-1 text-xs text-amber-400/90">Max {room.capacity ?? 2} guests</p>
-                                <p className="mt-3 text-xs leading-relaxed text-slate-300 line-clamp-2">
-                                  Air-conditioned comfort with 24-hour hot water, television, and complimentary breakfast.
+                                <h3 className="font-serif text-lg font-medium text-white">{room.name}</h3>
+                                <p className="mt-1 text-xs text-amber-300/80">Max {room.capacity ?? 2} guests</p>
+                                <p className="mt-2.5 text-xs leading-relaxed text-slate-300 line-clamp-2">
+                                  Air-conditioned quiet rest with 24-hr hot water, tea tray, and complimentary breakfast.
                                 </p>
                               </div>
 
-                              <div className="mt-6 border-t border-white/10 pt-4">
+                              <div className="mt-5 border-t border-white/[0.08] pt-4">
                                 <div className="flex items-baseline justify-between">
                                   <div>
-                                    <span className="font-serif text-2xl font-bold text-amber-400">
+                                    <span className="font-serif text-xl font-semibold text-amber-400">
                                       {formatCurrency(room.price_per_night)}
                                     </span>
                                     <span className="text-xs text-slate-400"> / night</span>
                                   </div>
                                   <div className="text-right">
-                                    <p className="text-xs text-slate-400">Total ({nights} nts)</p>
-                                    <p className="text-sm font-semibold text-white">{formatCurrency(estimatedTotal)}</p>
+                                    <p className="text-[11px] text-slate-400">Total ({nights} nts)</p>
+                                    <p className="text-xs font-semibold text-white">{formatCurrency(estimatedTotal)}</p>
                                   </div>
                                 </div>
 
@@ -775,15 +767,15 @@ function ReservationsPage() {
                                     setSelectedRoom(room);
                                     setStep(3);
                                   }}
-                                  className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold uppercase tracking-wider transition-all ${
+                                  className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-xs uppercase tracking-wider transition-all ${
                                     isSelected
-                                      ? "bg-amber-400 text-slate-950 shadow-lg"
+                                      ? "bg-amber-400 text-slate-950 font-bold"
                                       : isAvailable
-                                      ? "bg-white/10 text-white hover:bg-amber-500 hover:text-slate-950"
+                                      ? "champagne-btn"
                                       : "cursor-not-allowed bg-white/5 text-slate-500"
                                   }`}
                                 >
-                                  {isSelected ? "Selected ✓" : isAvailable ? "Reserve This Room" : "Unavailable"}
+                                  {isSelected ? "Selected ✓" : isAvailable ? "Choose Suite" : "Unavailable"}
                                 </button>
                               </div>
                             </div>
@@ -792,12 +784,12 @@ function ReservationsPage() {
                       })}
                     </div>
                   ) : (
-                    <div className="glass-card rounded-2xl p-10 text-center text-slate-400">
+                    <div className="editorial-card rounded-2xl p-10 text-center text-slate-400">
                       <p>No room types found for the specified criteria.</p>
                       <button
                         type="button"
                         onClick={() => setStep(1)}
-                        className="mt-4 rounded-lg bg-amber-400 px-4 py-2 text-xs font-bold uppercase text-slate-950"
+                        className="champagne-btn mt-4 rounded-xl px-5 py-2 text-xs uppercase"
                       >
                         Try Different Dates
                       </button>
@@ -808,12 +800,12 @@ function ReservationsPage() {
 
               {/* STEP 3: GUEST INFORMATION */}
               {step === 3 && selectedRoom && (
-                <div className="glass-card rounded-2xl p-6 sm:p-10">
-                  <div className="flex flex-col items-start justify-between gap-3 border-b border-white/10 pb-6 sm:flex-row sm:items-center">
+                <div className="editorial-card rounded-2xl p-6 sm:p-10">
+                  <div className="flex flex-col items-start justify-between gap-3 border-b border-white/[0.08] pb-6 sm:flex-row sm:items-center">
                     <div>
-                      <h2 className="font-serif text-2xl font-semibold text-white">Guest & Contact Details</h2>
+                      <h2 className="font-serif text-2xl font-medium text-white">Guest & Contact Details</h2>
                       <p className="mt-1 text-sm text-slate-400">
-                        Reserving: <strong className="text-amber-400">{selectedRoom.name}</strong> for {nights} {nights === 1 ? "night" : "nights"} ({safePrettyDate(checkIn)} to {safePrettyDate(checkOut)})
+                        Reserving: <strong className="text-amber-300 font-medium">{selectedRoom.name}</strong> for {nights} {nights === 1 ? "night" : "nights"} ({safePrettyDate(checkIn)} to {safePrettyDate(checkOut)})
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -841,9 +833,9 @@ function ReservationsPage() {
                   </div>
 
                   <form onSubmit={handleConfirmBooking} className="mt-6 space-y-6">
-                    <div className="grid gap-6 sm:grid-cols-2">
+                    <div className="grid gap-5 sm:grid-cols-2">
                       <div className="sm:col-span-2">
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-amber-400/90">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
                           Primary Guest Full Name *
                         </label>
                         <input
@@ -852,12 +844,12 @@ function ReservationsPage() {
                           value={guestName}
                           onChange={(e) => setGuestName(e.target.value)}
                           placeholder="e.g. Ramesh Hegde"
-                          className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400"
+                          className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-amber-400/90">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
                           Mobile Phone / WhatsApp *
                         </label>
                         <input
@@ -866,7 +858,7 @@ function ReservationsPage() {
                           value={guestPhone}
                           onChange={(e) => setGuestPhone(e.target.value)}
                           placeholder="e.g. 9845012345"
-                          className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400"
+                          className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                         />
                         <span className="mt-1 block text-xs text-slate-500">
                           Your reservation reference will be mapped to this phone.
@@ -874,7 +866,7 @@ function ReservationsPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-amber-400/90">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
                           Email Address (Optional)
                         </label>
                         <input
@@ -882,7 +874,7 @@ function ReservationsPage() {
                           value={guestEmail}
                           onChange={(e) => setGuestEmail(e.target.value)}
                           placeholder="e.g. guest@example.com"
-                          className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400"
+                          className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                         />
                         <span className="mt-1 block text-xs text-slate-500">
                           For copy of stay itinerary and receipts.
@@ -890,7 +882,7 @@ function ReservationsPage() {
                       </div>
 
                       <div className="sm:col-span-2">
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-amber-400/90">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
                           Special Requests / Estimated Arrival Time
                         </label>
                         <textarea
@@ -898,7 +890,7 @@ function ReservationsPage() {
                           value={notes}
                           onChange={(e) => setNotes(e.target.value)}
                           placeholder="Early check-in request, extra bed, dietary notes, or campus visit info..."
-                          className="mt-2 w-full resize-none rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400"
+                          className="mt-2 w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                         />
                       </div>
                     </div>
@@ -961,12 +953,12 @@ function ReservationsPage() {
 
                     <div className="flex flex-col items-center justify-between gap-4 pt-2 sm:flex-row">
                       <p className="text-xs text-slate-400 text-center sm:text-left">
-                        ✓ Recorded directly at Hotel Ratna Forever front desk. No WhatsApp messages required.
+                        ✓ Direct booking confirmed instantly at Hotel Ratna Forever front desk.
                       </p>
                       <button
                         type="submit"
                         disabled={submitting}
-                        className="shimmer-btn flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 px-8 py-4 text-xs font-bold uppercase tracking-[0.18em] text-slate-950 shadow-xl transition-all sm:w-auto"
+                        className="champagne-btn flex w-full items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-xs uppercase tracking-[0.16em] sm:w-auto"
                       >
                         {submitting ? (
                           <>
@@ -994,47 +986,47 @@ function ReservationsPage() {
               {step === 4 && confirmation && selectedRoom && (
                 <div className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
                   {/* Confirmed Banner */}
-                  <div className="glass-card rounded-2xl border-emerald-500/30 p-6 sm:p-10 text-center">
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 ring-4 ring-emerald-500/10">
-                      <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  <div className="editorial-card rounded-2xl border-emerald-500/20 p-6 sm:p-10 text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20">
+                      <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <span className="mt-4 inline-block text-xs font-semibold uppercase tracking-widest text-emerald-400">
+                    <span className="mt-4 inline-block text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-400/90">
                       Reservation Successfully Confirmed
                     </span>
-                    <h2 className="mt-2 font-serif text-3xl font-semibold text-white sm:text-4xl">
+                    <h2 className="mt-2 font-serif text-3xl font-medium text-white sm:text-4xl">
                       We Look Forward to Welcoming You
                     </h2>
                     <p className="mx-auto mt-2 max-w-lg text-sm text-slate-300">
                       Your booking is registered in the front desk management system. Keep your booking reference handy.
                     </p>
 
-                    <div className="mx-auto mt-6 inline-flex flex-col items-center justify-center rounded-xl border border-amber-400/40 bg-slate-950/80 px-8 py-4 shadow-xl">
-                      <span className="text-xs uppercase tracking-widest text-slate-400">Booking Reference</span>
-                      <span className="mt-1 font-mono text-3xl font-bold tracking-wider text-amber-400">
+                    <div className="mx-auto mt-6 inline-flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] px-8 py-4">
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">Booking Reference</span>
+                      <span className="mt-1 font-mono text-3xl font-bold tracking-wider text-amber-300">
                         {confirmation.reference}
                       </span>
                     </div>
 
-                    <div className="mt-8 grid gap-4 text-left sm:grid-cols-2 lg:grid-cols-4 border-t border-white/10 pt-6">
-                      <div className="p-3 rounded-lg bg-white/5">
-                        <span className="block text-xs text-slate-400 uppercase">Guest</span>
-                        <span className="mt-1 block text-sm font-semibold text-white">{guestName}</span>
+                    <div className="mt-8 grid gap-4 text-left sm:grid-cols-2 lg:grid-cols-4 border-t border-white/[0.08] pt-6">
+                      <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                        <span className="block text-[11px] text-slate-400 uppercase tracking-wider">Guest</span>
+                        <span className="mt-1 block text-sm font-medium text-white">{guestName}</span>
                       </div>
-                      <div className="p-3 rounded-lg bg-white/5">
-                        <span className="block text-xs text-slate-400 uppercase">Stay Dates</span>
-                        <span className="mt-1 block text-sm font-semibold text-white">
+                      <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                        <span className="block text-[11px] text-slate-400 uppercase tracking-wider">Stay Dates</span>
+                        <span className="mt-1 block text-sm font-medium text-white">
                           {safePrettyDate(checkIn)} → {safePrettyDate(checkOut)}
                         </span>
                       </div>
-                      <div className="p-3 rounded-lg bg-white/5">
-                        <span className="block text-xs text-slate-400 uppercase">Room Type</span>
-                        <span className="mt-1 block text-sm font-semibold text-white">{selectedRoom.name}</span>
+                      <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                        <span className="block text-[11px] text-slate-400 uppercase tracking-wider">Room Type</span>
+                        <span className="mt-1 block text-sm font-medium text-white">{selectedRoom.name}</span>
                       </div>
-                      <div className="p-3 rounded-lg bg-white/5">
-                        <span className="block text-xs text-slate-400 uppercase">Estimated Total</span>
-                        <span className="mt-1 block text-sm font-semibold text-amber-400">
+                      <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                        <span className="block text-[11px] text-slate-400 uppercase tracking-wider">Estimated Total</span>
+                        <span className="mt-1 block text-sm font-medium text-amber-300">
                           {formatCurrency(confirmation.estimated_total)}
                         </span>
                       </div>
@@ -1044,17 +1036,17 @@ function ReservationsPage() {
                   {/* ═══ OFFICIAL STAY RECEIPT & DELIVERY HUB ═══ */}
                   <div className="space-y-6">
                     {/* Quick Delivery Action Bar */}
-                    <div className="no-print glass-card rounded-2xl border border-amber-400/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-5 sm:p-6">
+                    <div className="no-print editorial-card rounded-2xl p-5 sm:p-6">
                       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div>
-                          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-300">
-                            <span>📲</span> Pass Details & Receipt Directly to Guest
+                          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-400/90">
+                            Receipt & Voucher Delivery
                           </span>
                           <p className="mt-1 text-xs text-slate-300">
-                            Save, print, or instantly send the official room reservation receipt directly to your WhatsApp or Email.
+                            Save, print, or share your official booking receipt via WhatsApp, SMS, or email.
                           </p>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2.5">
+                        <div className="flex flex-wrap items-center gap-2">
                           {/* Send to WhatsApp */}
                           <a
                             href={`https://api.whatsapp.com/send?phone=${formatPhoneForWhatsApp(
@@ -1062,12 +1054,12 @@ function ReservationsPage() {
                             )}&text=${encodeURIComponent(confirmationReceiptText)}`}
                             target="_blank"
                             rel="noreferrer noopener"
-                            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-emerald-500 hover:scale-[1.02] active:scale-95"
+                            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600/90 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-emerald-500"
                           >
                             <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                               <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
                             </svg>
-                            <span>WhatsApp Receipt</span>
+                            <span>WhatsApp</span>
                           </a>
 
                           {/* Send via SMS */}
@@ -1075,24 +1067,24 @@ function ReservationsPage() {
                             href={`sms:${formatPhoneForWhatsApp(guestPhone)}?body=${encodeURIComponent(
                               confirmationSmsText,
                             )}`}
-                            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-blue-500 hover:scale-[1.02] active:scale-95"
+                            className="inline-flex items-center gap-2 rounded-xl bg-blue-600/90 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-blue-500"
                           >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
-                            <span>Send via SMS</span>
+                            <span>SMS</span>
                           </a>
 
                           {/* Print / Save PDF */}
                           <button
                             type="button"
                             onClick={() => window.print()}
-                            className="inline-flex items-center gap-2 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-xs font-bold text-amber-300 transition-all hover:bg-amber-400/20 hover:scale-[1.02] active:scale-95"
+                            className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-semibold text-slate-200 transition-all hover:bg-white/10 hover:text-white"
                           >
-                            <svg className="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="h-4 w-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                             </svg>
-                            <span>Print / Save PDF</span>
+                            <span>Print / PDF</span>
                           </button>
 
                           {/* Copy Receipt Text */}
@@ -1102,13 +1094,13 @@ function ReservationsPage() {
                             className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-white/10"
                           >
                             {copiedReceipt ? (
-                              <span className="text-emerald-400 font-bold">✓ Copied to Clipboard!</span>
+                              <span className="text-emerald-400 font-medium">✓ Copied</span>
                             ) : (
                               <>
                                 <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                 </svg>
-                                <span>Copy Details</span>
+                                <span>Copy</span>
                               </>
                             )}
                           </button>
@@ -1119,9 +1111,9 @@ function ReservationsPage() {
                               href={`mailto:${guestEmail}?subject=${encodeURIComponent(
                                 `Booking Confirmation & Stay Receipt - Hotel Ratna Forever [${confirmation.reference}]`,
                               )}&body=${encodeURIComponent(confirmationReceiptText)}`}
-                              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs font-semibold text-slate-300 hover:bg-white/10"
+                              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-white/10"
                             >
-                              <span>✉️ Send via Email</span>
+                              <span>Email</span>
                             </a>
                           )}
                         </div>
@@ -1162,9 +1154,9 @@ function ReservationsPage() {
                     </div>
 
                     {/* Official Stay Voucher & Tax Receipt Card */}
-                    <div className="print-receipt-container glass-card overflow-hidden rounded-2xl border border-white/15 p-6 sm:p-10 shadow-2xl space-y-8 bg-slate-950/95">
+                    <div className="print-receipt-container editorial-card overflow-hidden rounded-2xl border border-white/[0.08] p-6 sm:p-10 shadow-2xl space-y-8 bg-slate-950/90">
                       {/* Receipt Top Header */}
-                      <div className="flex flex-col gap-6 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex flex-col gap-6 border-b border-white/[0.08] pb-6 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center gap-4">
                           <div className="rounded-xl bg-white/95 p-2 shadow-md ring-1 ring-amber-400/30">
                             <img
@@ -1176,7 +1168,7 @@ function ReservationsPage() {
                             />
                           </div>
                           <div>
-                            <h3 className="font-serif text-xl font-bold text-white tracking-wide">
+                            <h3 className="font-serif text-xl font-medium text-white tracking-wide">
                               Hotel Ratna Forever
                             </h3>
                             <p className="text-xs text-slate-300">
@@ -1189,41 +1181,41 @@ function ReservationsPage() {
                         </div>
 
                         <div className="text-left sm:text-right">
-                          <span className="inline-block rounded-md bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-300">
+                          <span className="inline-block rounded-md bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-300">
                             Official Stay Receipt & Folio
                           </span>
                           <div className="mt-2">
-                            <span className="block text-[0.7rem] uppercase tracking-wider text-slate-400">
+                            <span className="block text-[10px] uppercase tracking-wider text-slate-400">
                               Booking Ref
                             </span>
-                            <span className="font-mono text-xl font-bold text-amber-400">
+                            <span className="font-mono text-xl font-bold text-amber-300">
                               {confirmation.reference}
                             </span>
                           </div>
-                          <span className="text-[0.7rem] text-slate-400">
+                          <span className="text-[10px] text-slate-400">
                             Issued: {safePrettyDate(safeToday())}
                           </span>
                         </div>
                       </div>
 
                       {/* Section 1: Guest & Booking Details */}
-                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 rounded-xl bg-white/5 p-4 sm:p-5 border border-white/10">
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 rounded-xl bg-white/[0.02] p-4 sm:p-5 border border-white/[0.06]">
                         <div>
-                          <span className="block text-xs uppercase tracking-wider text-slate-400">Primary Guest</span>
-                          <span className="mt-1 block text-sm font-semibold text-white">{guestName}</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Primary Guest</span>
+                          <span className="mt-1 block text-sm font-medium text-white">{guestName}</span>
                         </div>
                         <div>
-                          <span className="block text-xs uppercase tracking-wider text-slate-400">Contact Number</span>
-                          <span className="mt-1 block text-sm font-semibold text-white">{guestPhone}</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Contact Number</span>
+                          <span className="mt-1 block text-sm font-medium text-white">{guestPhone}</span>
                         </div>
                         <div>
-                          <span className="block text-xs uppercase tracking-wider text-slate-400">Email Address</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Email Address</span>
                           <span className="mt-1 block text-sm font-medium text-slate-200">
                             {guestEmail.trim() || "Not specified"}
                           </span>
                         </div>
                         <div>
-                          <span className="block text-xs uppercase tracking-wider text-slate-400">Special Notes</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Special Notes</span>
                           <span className="mt-1 block text-xs text-slate-300 line-clamp-2">
                             {notes.trim() || "None"}
                           </span>
@@ -1231,7 +1223,7 @@ function ReservationsPage() {
                       </div>
 
                       {/* Section 2: Room & Accommodation Details */}
-                      <div className="rounded-xl border border-white/10 bg-slate-900/50 p-5 sm:p-6 space-y-4">
+                      <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 sm:p-6 space-y-4">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex items-center gap-4">
                             <img
@@ -1240,26 +1232,26 @@ function ReservationsPage() {
                               className="h-16 w-24 rounded-lg object-cover shadow-md"
                             />
                             <div>
-                              <span className="text-xs font-semibold uppercase tracking-widest text-amber-400">
+                              <span className="text-[11px] font-semibold uppercase tracking-widest text-amber-400/90">
                                 Reserved Accommodation
                               </span>
-                              <h4 className="font-serif text-xl font-bold text-white">{selectedRoom.name}</h4>
+                              <h4 className="font-serif text-xl font-medium text-white">{selectedRoom.name}</h4>
                               <p className="text-xs text-slate-300">
-                                Bedding: <strong className="text-white">{selectedRoomDetails?.beds ?? "King Bed"}</strong> · Standard Occupancy: {selectedRoom.capacity} Guests
+                                Bedding: <strong className="text-white font-medium">{selectedRoomDetails?.beds ?? "King Bed"}</strong> · Standard Occupancy: {selectedRoom.capacity} Guests
                               </p>
                             </div>
                           </div>
                           <div className="text-left sm:text-right">
                             <span className="text-xs text-slate-400">Direct Nightly Tariff</span>
-                            <p className="font-serif text-lg font-bold text-amber-400">
+                            <p className="font-serif text-lg font-medium text-amber-300">
                               {formatCurrency(selectedRoom.price_per_night)} <span className="text-xs font-normal text-slate-400">/ night</span>
                             </p>
                           </div>
                         </div>
 
-                        <div className="border-t border-white/10 pt-3">
-                          <span className="block text-xs font-medium uppercase tracking-wider text-slate-400 mb-2">
-                            Included Comforts & Room Privileges:
+                        <div className="border-t border-white/[0.06] pt-3">
+                          <span className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                            Included Comforts & Privileges:
                           </span>
                           <div className="flex flex-wrap gap-2">
                             {[
@@ -1272,9 +1264,9 @@ function ReservationsPage() {
                             ].map((inc) => (
                               <span
                                 key={inc}
-                                className="inline-flex items-center gap-1 rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-[0.7rem] text-slate-200"
+                                className="pill-tag text-[11px]"
                               >
-                                <span className="text-amber-400">✓</span> {inc}
+                                <span className="text-amber-400 text-xs">✓</span> {inc}
                               </span>
                             ))}
                           </div>
@@ -1282,37 +1274,37 @@ function ReservationsPage() {
                       </div>
 
                       {/* Section 3: Stay Schedule */}
-                      <div className="grid gap-4 sm:grid-cols-4 rounded-xl border border-white/10 bg-white/5 p-4 sm:p-5 text-center">
-                        <div className="sm:border-r sm:border-white/10">
-                          <span className="block text-xs uppercase tracking-wider text-slate-400">Check-in</span>
-                          <span className="mt-1 block text-sm font-semibold text-white">{safePrettyDate(checkIn)}</span>
-                          <span className="text-[0.7rem] text-amber-400 font-medium">From 12:00 PM</span>
+                      <div className="grid gap-4 sm:grid-cols-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-5 text-center">
+                        <div className="sm:border-r sm:border-white/[0.06]">
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Check-in</span>
+                          <span className="mt-1 block text-sm font-medium text-white">{safePrettyDate(checkIn)}</span>
+                          <span className="text-[10px] text-amber-300 font-medium">From 12:00 PM</span>
                         </div>
-                        <div className="sm:border-r sm:border-white/10">
-                          <span className="block text-xs uppercase tracking-wider text-slate-400">Check-out</span>
-                          <span className="mt-1 block text-sm font-semibold text-white">{safePrettyDate(checkOut)}</span>
-                          <span className="text-[0.7rem] text-slate-400">Until 11:00 AM</span>
+                        <div className="sm:border-r sm:border-white/[0.06]">
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Check-out</span>
+                          <span className="mt-1 block text-sm font-medium text-white">{safePrettyDate(checkOut)}</span>
+                          <span className="text-[10px] text-slate-400">Until 11:00 AM</span>
                         </div>
-                        <div className="sm:border-r sm:border-white/10">
-                          <span className="block text-xs uppercase tracking-wider text-slate-400">Duration</span>
-                          <span className="mt-1 block text-sm font-semibold text-amber-400">
+                        <div className="sm:border-r sm:border-white/[0.06]">
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Duration</span>
+                          <span className="mt-1 block text-sm font-medium text-amber-300">
                             {nights} {nights === 1 ? "Night" : "Nights"}
                           </span>
-                          <span className="text-[0.7rem] text-slate-400">Direct booking</span>
+                          <span className="text-[10px] text-slate-400">Direct booking</span>
                         </div>
                         <div>
-                          <span className="block text-xs uppercase tracking-wider text-slate-400">Total Guests</span>
-                          <span className="mt-1 block text-sm font-semibold text-white">
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Total Guests</span>
+                          <span className="mt-1 block text-sm font-medium text-white">
                             {adults} {adults === 1 ? "Adult" : "Adults"}
                             {children > 0 ? `, ${children} Child` : ""}
                           </span>
-                          <span className="text-[0.7rem] text-slate-400">1 Room</span>
+                          <span className="text-[10px] text-slate-400">1 Room</span>
                         </div>
                       </div>
 
                       {/* Section 4: Billing Summary & Folio Breakdown */}
-                      <div className="rounded-xl border border-amber-400/20 bg-slate-950/60 p-5 sm:p-6 space-y-3">
-                        <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
+                      <div className="rounded-xl border border-amber-400/20 bg-amber-400/[0.03] p-5 sm:p-6 space-y-3">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-300">
                           Billing Folio Summary
                         </span>
 
@@ -1321,7 +1313,7 @@ function ReservationsPage() {
                             <span>
                               {selectedRoom.name} Room Tariff ({nights} {nights === 1 ? "night" : "nights"} × {formatCurrency(selectedRoom.price_per_night)})
                             </span>
-                            <span className="font-semibold text-white">
+                            <span className="font-medium text-white">
                               {formatCurrency(selectedRoom.price_per_night * nights)}
                             </span>
                           </div>
@@ -1333,21 +1325,21 @@ function ReservationsPage() {
                             <span>Taxes, Wi-Fi & Dedicated Highway Parking</span>
                             <span className="text-emerald-400 font-medium">Included</span>
                           </div>
-                          <div className="border-t border-white/10 pt-2 flex justify-between text-sm">
-                            <span className="font-semibold text-white">Total Estimated Tariff</span>
-                            <span className="font-serif text-lg font-bold text-amber-400">
+                          <div className="border-t border-white/[0.08] pt-2 flex justify-between text-sm">
+                            <span className="font-medium text-white">Total Estimated Tariff</span>
+                            <span className="font-serif text-lg font-medium text-amber-300">
                               {formatCurrency(confirmation.estimated_total)}
                             </span>
                           </div>
                           <div className="flex justify-between text-slate-300 pt-1">
                             <span>Advance Deposit Recorded:</span>
-                            <span className={`font-semibold ${paymentSuccess ? "text-emerald-400" : "text-slate-400"}`}>
+                            <span className={`font-medium ${paymentSuccess ? "text-emerald-400" : "text-slate-400"}`}>
                               {paymentSuccess ? formatCurrency(payAmount) : "Pending (Pay at Reception)"}
                             </span>
                           </div>
-                          <div className="border-t border-white/10 pt-2 flex justify-between text-sm">
-                            <span className="font-bold text-white">Balance Due at Check-in:</span>
-                            <span className="font-serif text-base font-bold text-amber-300">
+                          <div className="border-t border-white/[0.08] pt-2 flex justify-between text-sm">
+                            <span className="font-semibold text-white">Balance Due at Check-in:</span>
+                            <span className="font-serif text-base font-semibold text-amber-300">
                               {paymentSuccess
                                 ? formatCurrency(Math.max(0, confirmation.estimated_total - payAmount))
                                 : formatCurrency(confirmation.estimated_total)}
@@ -1357,9 +1349,9 @@ function ReservationsPage() {
                       </div>
 
                       {/* Section 5: Reception Check-in Guidelines */}
-                      <div className="border-t border-white/10 pt-4 text-xs text-slate-400 space-y-1.5">
+                      <div className="border-t border-white/[0.08] pt-4 text-xs text-slate-400 space-y-1.5">
                         <p>
-                          📌 <strong>Check-in Policy:</strong> Standard check-in time is 12:00 PM. Please present your booking reference (<strong className="text-amber-400 font-mono">{confirmation.reference}</strong>) along with a valid Government Photo ID (Aadhaar, Passport, or Driving License) for all adult guests at reception.
+                          📌 <strong>Check-in Policy:</strong> Standard check-in time is 12:00 PM. Please present your booking reference (<strong className="text-amber-300 font-mono">{confirmation.reference}</strong>) along with a valid Government Photo ID (Aadhaar, Passport, or Driving License) for all adult guests at reception.
                         </p>
                         <p>
                           🍳 <strong>Breakfast Timings:</strong> Fresh coastal vegetarian & non-vegetarian breakfast is served daily from 7:30 AM to 10:30 AM.
@@ -1387,13 +1379,13 @@ function ReservationsPage() {
                   </div>
 
                   {/* Integrated UPI Advance Payment */}
-                  <div className="glass-card rounded-2xl p-6 sm:p-10">
-                    <div className="border-b border-white/10 pb-6">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-xs font-bold text-slate-950">
+                  <div className="editorial-card rounded-2xl p-6 sm:p-10">
+                    <div className="border-b border-white/[0.08] pb-6">
+                      <div className="flex items-center gap-2.5">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-400/20 text-xs font-semibold text-amber-300 border border-amber-400/30">
                           ₹
                         </span>
-                        <h3 className="font-serif text-xl font-semibold text-white">
+                        <h3 className="font-serif text-xl font-medium text-white">
                           Pay Advance Deposit via UPI
                         </h3>
                       </div>
@@ -1407,17 +1399,17 @@ function ReservationsPage() {
                         {/* UPI Details */}
                         <div className="space-y-5">
                           <div>
-                            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                               Hotel UPI Handle
                             </span>
-                            <div className="mt-2 flex items-center justify-between rounded-xl border border-white/15 bg-slate-950/80 p-3">
-                              <span className="font-mono text-sm text-amber-400 font-medium">{UPI_ID}</span>
+                            <div className="mt-2 flex items-center justify-between rounded-xl border border-white/[0.08] bg-white/[0.03] p-3">
+                              <span className="font-mono text-sm text-amber-300 font-medium">{UPI_ID}</span>
                               <span className="text-xs text-slate-400">{UPI_NAME}</span>
                             </div>
                           </div>
 
                           <div>
-                            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                               Choose Advance Amount
                             </span>
                             <div className="mt-2 grid grid-cols-3 gap-2">
@@ -1426,10 +1418,10 @@ function ReservationsPage() {
                                   key={amt}
                                   type="button"
                                   onClick={() => setPayAmount(amt)}
-                                  className={`rounded-xl border py-2 text-xs font-bold transition-all ${
+                                  className={`rounded-xl border py-2.5 text-xs font-semibold transition-all ${
                                     payAmount === amt
-                                      ? "border-amber-400 bg-amber-400/20 text-amber-300"
-                                      : "border-white/10 bg-white/5 text-slate-300 hover:border-white/25"
+                                      ? "border-amber-400/60 bg-amber-400/15 text-amber-300"
+                                      : "border-white/[0.08] bg-white/[0.03] text-slate-300 hover:border-white/20"
                                   }`}
                                 >
                                   {formatCurrency(amt)}
@@ -1445,7 +1437,7 @@ function ReservationsPage() {
                               )}&am=${payAmount}&cu=INR&tn=${encodeURIComponent(
                                 `Advance ${confirmation.reference}`,
                               )}`}
-                              className="shimmer-btn flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-950 shadow-lg"
+                              className="champagne-btn flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-xs uppercase tracking-wider"
                             >
                               <span>Open UPI App to Pay {formatCurrency(payAmount)}</span>
                               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1459,15 +1451,15 @@ function ReservationsPage() {
                         </div>
 
                         {/* Submit UTR */}
-                        <div className="rounded-xl border border-white/10 bg-slate-950/60 p-5">
-                          <h4 className="text-sm font-semibold text-white">Record Transaction Number (UTR)</h4>
+                        <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
+                          <h4 className="text-sm font-medium text-white">Record Transaction Number (UTR)</h4>
                           <p className="mt-1 text-xs text-slate-400">
                             After completing the UPI transfer, enter the 12-digit UTR or Transaction Ref ID so our accounts team can log it against your reservation.
                           </p>
 
                           <form onSubmit={handleRecordNewPayment} className="mt-4 space-y-4">
                             <div>
-                              <label className="block text-xs font-medium uppercase text-slate-300">
+                              <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-300">
                                 UPI 12-Digit Reference / UTR *
                               </label>
                               <input
@@ -1476,7 +1468,7 @@ function ReservationsPage() {
                                 value={utrNumber}
                                 onChange={(e) => setUtrNumber(e.target.value)}
                                 placeholder="e.g. 423819283741"
-                                className="mt-1 w-full rounded-lg border border-white/15 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-amber-400"
+                                className="mt-1 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2.5 text-sm text-white outline-none focus:border-amber-400/70"
                               />
                             </div>
 
@@ -1487,7 +1479,7 @@ function ReservationsPage() {
                             <button
                               type="submit"
                               disabled={submittingPayment}
-                              className="w-full rounded-lg bg-white/10 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-amber-500 hover:text-slate-950"
+                              className="champagne-btn w-full rounded-xl py-2.5 text-xs uppercase tracking-wider"
                             >
                               {submittingPayment ? "Recording Payment..." : "Submit Payment UTR"}
                             </button>
@@ -1495,7 +1487,7 @@ function ReservationsPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="mt-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-center">
+                      <div className="mt-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-5 text-center">
                         <p className="text-sm font-semibold text-emerald-300">
                           ✓ Payment details recorded against booking {confirmation.reference}!
                         </p>
@@ -1505,10 +1497,10 @@ function ReservationsPage() {
                       </div>
                     )}
 
-                    <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6">
+                    <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-white/[0.08] pt-6">
                       <a
                         href={`tel:${PHONE}`}
-                        className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-amber-400"
+                        className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-amber-300"
                       >
                         <svg className="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -1517,7 +1509,7 @@ function ReservationsPage() {
                       </a>
                       <Link
                         to="/"
-                        className="rounded-lg border border-white/15 px-4 py-2 text-xs font-semibold text-white hover:bg-white/10"
+                        className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white hover:bg-white/10"
                       >
                         Return to Homepage
                       </Link>
@@ -1530,9 +1522,9 @@ function ReservationsPage() {
 
           {/* TAB 2: LOOK UP & PAY EXISTING RESERVATION */}
           {activeTab === "manage" && (
-            <div className="glass-card rounded-2xl p-6 sm:p-10 space-y-8">
+            <div className="editorial-card rounded-2xl p-6 sm:p-10 space-y-8">
               <div>
-                <h2 className="font-serif text-2xl font-semibold text-white">Find Existing Reservation</h2>
+                <h2 className="font-serif text-2xl font-medium text-white">Find Existing Reservation</h2>
                 <p className="mt-1 text-sm text-slate-400">
                   Enter your booking reference code and the phone number provided during booking to check status or record an advance payment.
                 </p>
@@ -1540,7 +1532,7 @@ function ReservationsPage() {
 
               <form onSubmit={handleLookup} className="grid gap-4 sm:grid-cols-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                     Booking Reference *
                   </label>
                   <input
@@ -1549,12 +1541,12 @@ function ReservationsPage() {
                     value={lookupRef}
                     onChange={(e) => setLookupRef(e.target.value.toUpperCase())}
                     placeholder="e.g. RF-4819"
-                    className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-2.5 text-sm font-mono text-white outline-none focus:border-amber-400"
+                    className="mt-1 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-sm font-mono text-white outline-none focus:border-amber-400/70"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                     Phone Number *
                   </label>
                   <input
@@ -1563,7 +1555,7 @@ function ReservationsPage() {
                     value={lookupPhone}
                     onChange={(e) => setLookupPhone(e.target.value)}
                     placeholder="e.g. 9845012345"
-                    className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400"
+                    className="mt-1 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/70"
                   />
                 </div>
 
@@ -1571,7 +1563,7 @@ function ReservationsPage() {
                   <button
                     type="submit"
                     disabled={lookupLoading}
-                    className="shimmer-btn flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 py-3 text-xs font-bold uppercase tracking-wider text-slate-950 shadow-md transition-all hover:bg-amber-300"
+                    className="champagne-btn flex w-full items-center justify-center gap-2 rounded-xl py-3 text-xs uppercase tracking-wider"
                   >
                     {lookupLoading ? "Searching..." : "Find Reservation"}
                   </button>
@@ -1586,17 +1578,17 @@ function ReservationsPage() {
 
               {/* Looked Up Booking Card */}
               {lookupBookingData && (
-                <div className="rounded-xl border border-white/15 bg-slate-950/80 p-6 space-y-6">
-                  <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-4 sm:flex-row sm:items-center">
+                <div className="editorial-card rounded-xl border border-white/[0.08] p-6 space-y-6">
+                  <div className="flex flex-col justify-between gap-4 border-b border-white/[0.08] pb-4 sm:flex-row sm:items-center">
                     <div>
-                      <span className="text-xs uppercase tracking-widest text-slate-400">Reference</span>
-                      <h3 className="font-mono text-2xl font-bold text-amber-400">{lookupBookingData.reference}</h3>
+                      <span className="text-[11px] uppercase tracking-widest text-slate-400">Reference</span>
+                      <h3 className="font-mono text-2xl font-bold text-amber-300">{lookupBookingData.reference}</h3>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-amber-400/10 border border-amber-400/30 px-3 py-1 text-xs font-semibold text-amber-300">
+                      <span className="rounded-full bg-amber-400/10 border border-amber-400/20 px-3 py-1 text-xs font-medium text-amber-300">
                         Status: {lookupBookingData.status}
                       </span>
-                      <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-slate-300">
+                      <span className="rounded-full bg-white/[0.06] border border-white/[0.08] px-3 py-1 text-xs font-medium text-slate-300">
                         Payment: {lookupBookingData.payment_status}
                       </span>
                     </div>
@@ -1619,36 +1611,36 @@ function ReservationsPage() {
                     </div>
                     <div>
                       <span className="block text-xs text-slate-500">Estimated Total</span>
-                      <span className="font-bold text-amber-400">{formatCurrency(lookupBookingData.estimated_total)}</span>
+                      <span className="font-medium text-amber-300">{formatCurrency(lookupBookingData.estimated_total)}</span>
                     </div>
                   </div>
 
                   {/* Looked Up Booking Actions: WhatsApp, SMS, Print, Copy */}
-                  <div className="no-print flex flex-wrap items-center gap-3 border-t border-white/10 pt-4">
+                  <div className="no-print flex flex-wrap items-center gap-2.5 border-t border-white/[0.08] pt-4">
                     <a
                       href={`https://api.whatsapp.com/send?phone=${formatPhoneForWhatsApp(
                         lookupPhone,
                       )}&text=${encodeURIComponent(lookupReceiptText)}`}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow transition-all hover:bg-emerald-500"
+                      className="inline-flex items-center gap-2 rounded-xl bg-emerald-600/90 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-emerald-500"
                     >
-                      <span>📲 Send to WhatsApp</span>
+                      <span>WhatsApp</span>
                     </a>
                     <a
                       href={`sms:${formatPhoneForWhatsApp(lookupPhone)}?body=${encodeURIComponent(
                         lookupSmsText,
                       )}`}
-                      className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow transition-all hover:bg-blue-500"
+                      className="inline-flex items-center gap-2 rounded-xl bg-blue-600/90 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-blue-500"
                     >
-                      <span>💬 Send via SMS</span>
+                      <span>SMS</span>
                     </a>
                     <button
                       type="button"
                       onClick={() => window.print()}
-                      className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold text-white hover:bg-white/20"
+                      className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10"
                     >
-                      <span>🖨️ Print Receipt Folio</span>
+                      <span>Print / PDF</span>
                     </button>
                     <button
                       type="button"
@@ -1656,18 +1648,18 @@ function ReservationsPage() {
                       className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-white/10"
                     >
                       {manageCopiedReceipt ? (
-                        <span className="text-emerald-400 font-bold">✓ Copied!</span>
+                        <span className="text-emerald-400 font-medium">✓ Copied</span>
                       ) : (
-                        <span>📋 Copy Details</span>
+                        <span>Copy</span>
                       )}
                     </button>
                   </div>
 
                   {/* Pay Advance for looked up booking */}
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-5 space-y-4">
-                    <h4 className="text-sm font-semibold text-white">Pay Advance for this Reservation</h4>
+                  <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 space-y-4">
+                    <h4 className="text-sm font-medium text-white">Pay Advance for this Reservation</h4>
                     <p className="text-xs text-slate-400">
-                      Send payment via UPI to <strong className="text-amber-400">{UPI_ID}</strong> ({UPI_NAME}) and submit the transaction ID below.
+                      Send payment via UPI to <strong className="text-amber-300">{UPI_ID}</strong> ({UPI_NAME}) and submit the transaction ID below.
                     </p>
 
                     {!managePaySuccess ? (
@@ -1678,7 +1670,7 @@ function ReservationsPage() {
                             type="number"
                             value={managePayAmount}
                             onChange={(e) => setManagePayAmount(Number(e.target.value))}
-                            className="mt-1 w-full rounded-lg border border-white/15 bg-slate-900 px-3 py-2 text-sm text-white"
+                            className="mt-1 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2 text-sm text-white"
                           />
                         </div>
                         <div>
@@ -1689,14 +1681,14 @@ function ReservationsPage() {
                             value={manageUtr}
                             onChange={(e) => setManageUtr(e.target.value)}
                             placeholder="e.g. 423819283741"
-                            className="mt-1 w-full rounded-lg border border-white/15 bg-slate-900 px-3 py-2 text-sm text-white"
+                            className="mt-1 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2 text-sm text-white"
                           />
                         </div>
                         <div className="flex items-end">
                           <button
                             type="submit"
                             disabled={manageSubmittingPay}
-                            className="w-full rounded-lg bg-amber-400 py-2.5 text-xs font-bold uppercase text-slate-950 hover:bg-amber-300"
+                            className="champagne-btn w-full rounded-xl py-2.5 text-xs uppercase tracking-wider"
                           >
                             {manageSubmittingPay ? "Saving..." : "Submit UTR"}
                           </button>
@@ -1704,7 +1696,7 @@ function ReservationsPage() {
                         {managePayError && <p className="text-xs text-rose-400 sm:col-span-3">{managePayError}</p>}
                       </form>
                     ) : (
-                      <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-300 text-center">
+                      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-300 text-center">
                         ✓ Payment details saved successfully! Our reception team will verify upon check-in.
                       </div>
                     )}
