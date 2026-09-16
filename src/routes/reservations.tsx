@@ -16,6 +16,7 @@ import {
   type BookingLookup,
 } from "@/lib/booking";
 import { sendAutomatedBookingEmail } from "@/lib/email-template";
+import { sendAutomatedBookingSms, type SmsDispatchResult } from "@/lib/sms-service";
 
 export const Route = createFileRoute("/reservations")({
   head: () => ({
@@ -122,6 +123,8 @@ function ReservationsPage() {
   const [copiedReceipt, setCopiedReceipt] = useState(false);
   const [manageCopiedReceipt, setManageCopiedReceipt] = useState(false);
   const [autoEmailStatus, setAutoEmailStatus] = useState<string | null>(null);
+  const [autoSmsStatus, setAutoSmsStatus] = useState<SmsDispatchResult | null>(null);
+  const [manualSmsSending, setManualSmsSending] = useState(false);
 
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 1;
@@ -345,7 +348,34 @@ function ReservationsPage() {
       setPayAmount(Math.min(res.estimated_total, 1000));
       setStep(4);
 
-      // Trigger automated confirmation email in background if email is present
+      // 1. Trigger automated SMS dispatch in background to guest phone
+      sendAutomatedBookingSms({
+        reference: res.reference,
+        guestName: guestName.trim(),
+        guestPhone: guestPhone.trim(),
+        guestEmail: guestEmail.trim() || undefined,
+        roomName: selectedRoom.name,
+        checkIn: safePrettyDate(checkIn),
+        checkOut: safePrettyDate(checkOut),
+        nights,
+        adults,
+        children,
+        totalTariff: res.estimated_total,
+        paymentStatus: "Confirmed at Front Desk",
+        amenities: selectedRoomDetails?.tags,
+      })
+        .then((smsResult) => {
+          setAutoSmsStatus(smsResult);
+        })
+        .catch((err) => {
+          setAutoSmsStatus({
+            sent: false,
+            provider: "none",
+            message: err instanceof Error ? err.message : "SMS dispatch error",
+          });
+        });
+
+      // 2. Trigger automated confirmation email in background if email is present
       if (guestEmail.trim()) {
         sendAutomatedBookingEmail({
           reference: res.reference,
@@ -1095,9 +1125,37 @@ function ReservationsPage() {
                             </a>
                           )}
                         </div>
-                        {autoEmailStatus && (
-                          <div className="mt-2 text-xs font-semibold text-emerald-400 animate-in fade-in">
-                            {autoEmailStatus}
+                        {/* Automated Delivery Status Feedback */}
+                        {(autoSmsStatus || autoEmailStatus) && (
+                          <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-3 text-xs">
+                            {autoSmsStatus && (
+                              <div
+                                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl p-3 ${
+                                  autoSmsStatus.sent
+                                    ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
+                                    : "bg-amber-500/15 border border-amber-500/30 text-amber-300"
+                                }`}
+                              >
+                                <div className="flex items-start sm:items-center gap-2">
+                                  <span className="text-base leading-none">{autoSmsStatus.sent ? "✓" : "📱"}</span>
+                                  <span>{autoSmsStatus.message}</span>
+                                </div>
+                                {!autoSmsStatus.sent && (
+                                  <a
+                                    href={`sms:${formatPhoneForWhatsApp(guestPhone)}?body=${encodeURIComponent(confirmationSmsText)}`}
+                                    className="inline-flex items-center justify-center gap-1.5 shrink-0 rounded-lg bg-amber-400 px-3 py-1.5 text-xs font-bold text-slate-950 transition-colors hover:bg-amber-300"
+                                  >
+                                    <span>📱 Open SMS App & Send</span>
+                                  </a>
+                                )}
+                              </div>
+                            )}
+                            {autoEmailStatus && (
+                              <div className="flex items-center gap-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 p-3 text-emerald-300">
+                                <span className="text-base leading-none">✉️</span>
+                                <span>{autoEmailStatus}</span>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
