@@ -169,6 +169,34 @@ The compiled output is generated in `.output/` and can be previewed or deployed 
 
 ---
 
+## 📱 Automated SMS & Email Notifications
+
+When a guest reserves a room, the system automatically dispatches the booking confirmation voucher via SMS and Email:
+
+### SMS Dispatch Options
+1. **Fast2SMS (Recommended for India)**:
+   Add your Fast2SMS API key to `.env`:
+   ```env
+   FAST2SMS_API_KEY="your_fast2sms_api_key"
+   ```
+   The backend `/api/send-sms` will automatically route SMS via Fast2SMS Quick Route directly to the guest's 10-digit mobile number.
+2. **Twilio (International & Multi-region)**:
+   ```env
+   TWILIO_ACCOUNT_SID="your_sid"
+   TWILIO_AUTH_TOKEN="your_token"
+   TWILIO_PHONE_NUMBER="+1234567890"
+   ```
+3. **1-Tap Native SMS Launcher (No Key Required)**:
+   If no gateway key is supplied in `.env`, the confirmation screen instantly provides a **1-tap SMS launcher** (`sms:+91...?body=...`) and **WhatsApp direct link** pre-loaded with the guest's room voucher, dates, reference, and tariff.
+
+### Automated HTML Email Receipts
+Powered by Resend:
+```env
+RESEND_API_KEY="re_123456789"
+```
+
+---
+
 ## 🗄️ Database Architecture (Supabase RPCs)
 
 The booking system communicates with PostgreSQL stored procedures for ACID-compliant transactions:
