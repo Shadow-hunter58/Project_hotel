@@ -1,12 +1,15 @@
 import { useState, useMemo, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/SiteChrome";
+import ratnaLogo from "@/assets/ratna-logo.png";
 import { PHONE, PHONE_DISPLAY, UPI_ID, UPI_NAME, rooms as localRooms } from "@/lib/site-data";
 import {
   createBooking,
   fetchAvailability,
   lookupBooking,
   recordPayment,
+  formatReceiptText,
+  nightsBetween,
   type AvailabilityRow,
   type BookingResult,
   type BookingLookup,
@@ -105,6 +108,9 @@ function ReservationsPage() {
   const [managePaySuccess, setManagePaySuccess] = useState(false);
   const [managePayError, setManagePayError] = useState<string | null>(null);
 
+  const [copiedReceipt, setCopiedReceipt] = useState(false);
+  const [manageCopiedReceipt, setManageCopiedReceipt] = useState(false);
+
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 1;
     const tIn = new Date(`${checkIn}T00:00:00`).getTime();
@@ -112,6 +118,85 @@ function ReservationsPage() {
     if (isNaN(tIn) || isNaN(tOut) || tOut <= tIn) return 1;
     return Math.max(1, Math.round((tOut - tIn) / 86400000));
   }, [checkIn, checkOut]);
+
+  const formatPhoneForWhatsApp = (raw: string) => {
+    const cleaned = raw.replace(/\D/g, "");
+    if (cleaned.length === 10) return `91${cleaned}`;
+    return cleaned;
+  };
+
+  const handleCopyReceipt = (text: string, isManage = false) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      if (isManage) {
+        setManageCopiedReceipt(true);
+        setTimeout(() => setManageCopiedReceipt(false), 2500);
+      } else {
+        setCopiedReceipt(true);
+        setTimeout(() => setCopiedReceipt(false), 2500);
+      }
+    }
+  };
+
+  const selectedRoomDetails = useMemo(() => {
+    if (!selectedRoom) return null;
+    return (
+      localRooms.find((r) => r.name.toLowerCase() === selectedRoom.name.toLowerCase()) ?? localRooms[0]
+    );
+  }, [selectedRoom]);
+
+  const confirmationReceiptText = useMemo(() => {
+    if (!confirmation || !selectedRoom) return "";
+    return formatReceiptText({
+      reference: confirmation.reference,
+      guestName,
+      guestPhone,
+      guestEmail: guestEmail.trim() || undefined,
+      roomName: selectedRoom.name,
+      checkIn: safePrettyDate(checkIn),
+      checkOut: safePrettyDate(checkOut),
+      nights,
+      adults,
+      children,
+      totalTariff: confirmation.estimated_total,
+      paymentStatus: paymentSuccess ? "Advance Recorded via UPI" : "Confirmed at Front Desk",
+      advancePaid: paymentSuccess ? payAmount : undefined,
+      amenities: selectedRoomDetails?.tags,
+    });
+  }, [
+    confirmation,
+    selectedRoom,
+    guestName,
+    guestPhone,
+    guestEmail,
+    checkIn,
+    checkOut,
+    nights,
+    adults,
+    children,
+    paymentSuccess,
+    payAmount,
+    selectedRoomDetails,
+  ]);
+
+  const lookupReceiptText = useMemo(() => {
+    if (!lookupBookingData) return "";
+    const nts = nightsBetween(lookupBookingData.check_in, lookupBookingData.check_out);
+    return formatReceiptText({
+      reference: lookupBookingData.reference,
+      guestName: lookupBookingData.guest_name,
+      guestPhone: lookupPhone,
+      roomName: lookupBookingData.room_name,
+      checkIn: safePrettyDate(lookupBookingData.check_in),
+      checkOut: safePrettyDate(lookupBookingData.check_out),
+      nights: nts,
+      adults: lookupBookingData.adults,
+      children: lookupBookingData.children,
+      totalTariff: lookupBookingData.estimated_total,
+      paymentStatus: managePaySuccess ? "Advance Recorded via UPI" : lookupBookingData.payment_status,
+      advancePaid: managePaySuccess ? managePayAmount : undefined,
+    });
+  }, [lookupBookingData, lookupPhone, managePaySuccess, managePayAmount]);
 
   // Sync check-in changes safely
   const handleCheckInChange = (newDate: string) => {
@@ -754,6 +839,290 @@ function ReservationsPage() {
                     </div>
                   </div>
 
+                  {/* ═══ OFFICIAL STAY RECEIPT & DELIVERY HUB ═══ */}
+                  <div className="space-y-6">
+                    {/* Quick Delivery Action Bar */}
+                    <div className="no-print glass-card rounded-2xl border border-amber-400/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-5 sm:p-6">
+                      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div>
+                          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-300">
+                            <span>📲</span> Pass Details & Receipt Directly to Guest
+                          </span>
+                          <p className="mt-1 text-xs text-slate-300">
+                            Save, print, or instantly send the official room reservation receipt directly to your WhatsApp or Email.
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          {/* Send to WhatsApp */}
+                          <a
+                            href={`https://api.whatsapp.com/send?phone=${formatPhoneForWhatsApp(
+                              guestPhone,
+                            )}&text=${encodeURIComponent(confirmationReceiptText)}`}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-emerald-500 hover:scale-[1.02] active:scale-95"
+                          >
+                            <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                            </svg>
+                            <span>WhatsApp Receipt</span>
+                          </a>
+
+                          {/* Print / Save PDF */}
+                          <button
+                            type="button"
+                            onClick={() => window.print()}
+                            className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-xs font-bold text-white transition-all hover:bg-white/20 hover:scale-[1.02] active:scale-95"
+                          >
+                            <svg className="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                            </svg>
+                            <span>Print / PDF Folio</span>
+                          </button>
+
+                          {/* Copy Receipt Text */}
+                          <button
+                            type="button"
+                            onClick={() => handleCopyReceipt(confirmationReceiptText)}
+                            className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-white/10"
+                          >
+                            {copiedReceipt ? (
+                              <span className="text-emerald-400 font-bold">✓ Copied to Clipboard!</span>
+                            ) : (
+                              <>
+                                <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                <span>Copy Details</span>
+                              </>
+                            )}
+                          </button>
+
+                          {/* Email Itinerary */}
+                          {guestEmail && (
+                            <a
+                              href={`mailto:${guestEmail}?subject=${encodeURIComponent(
+                                `Booking Confirmation & Receipt - Hotel Ratna Forever [${confirmation.reference}]`,
+                              )}&body=${encodeURIComponent(confirmationReceiptText)}`}
+                              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs font-semibold text-slate-300 hover:bg-white/10"
+                            >
+                              <span>✉️ Email</span>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Official Stay Voucher & Tax Receipt Card */}
+                    <div className="print-receipt-container glass-card overflow-hidden rounded-2xl border border-white/15 p-6 sm:p-10 shadow-2xl space-y-8 bg-slate-950/95">
+                      {/* Receipt Top Header */}
+                      <div className="flex flex-col gap-6 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="rounded-xl bg-white/95 p-2 shadow-md ring-1 ring-amber-400/30">
+                            <img
+                              src={ratnaLogo}
+                              alt="Hotel Ratna Forever"
+                              width={765}
+                              height={424}
+                              className="h-10 w-auto"
+                            />
+                          </div>
+                          <div>
+                            <h3 className="font-serif text-xl font-bold text-white tracking-wide">
+                              Hotel Ratna Forever
+                            </h3>
+                            <p className="text-xs text-slate-300">
+                              Nitte Parapady, Karkala Taluk, Udupi Dist, Karnataka 574110
+                            </p>
+                            <p className="text-xs text-slate-400">
+                              Front Desk: +91 73380 88744 · 24-Hour Reception
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="text-left sm:text-right">
+                          <span className="inline-block rounded-md bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-300">
+                            Official Stay Receipt & Folio
+                          </span>
+                          <div className="mt-2">
+                            <span className="block text-[0.7rem] uppercase tracking-wider text-slate-400">
+                              Booking Ref
+                            </span>
+                            <span className="font-mono text-xl font-bold text-amber-400">
+                              {confirmation.reference}
+                            </span>
+                          </div>
+                          <span className="text-[0.7rem] text-slate-400">
+                            Issued: {safePrettyDate(safeToday())}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Section 1: Guest & Booking Details */}
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 rounded-xl bg-white/5 p-4 sm:p-5 border border-white/10">
+                        <div>
+                          <span className="block text-xs uppercase tracking-wider text-slate-400">Primary Guest</span>
+                          <span className="mt-1 block text-sm font-semibold text-white">{guestName}</span>
+                        </div>
+                        <div>
+                          <span className="block text-xs uppercase tracking-wider text-slate-400">Contact Number</span>
+                          <span className="mt-1 block text-sm font-semibold text-white">{guestPhone}</span>
+                        </div>
+                        <div>
+                          <span className="block text-xs uppercase tracking-wider text-slate-400">Email Address</span>
+                          <span className="mt-1 block text-sm font-medium text-slate-200">
+                            {guestEmail.trim() || "Not specified"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="block text-xs uppercase tracking-wider text-slate-400">Special Notes</span>
+                          <span className="mt-1 block text-xs text-slate-300 line-clamp-2">
+                            {notes.trim() || "None"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Section 2: Room & Accommodation Details */}
+                      <div className="rounded-xl border border-white/10 bg-slate-900/50 p-5 sm:p-6 space-y-4">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex items-center gap-4">
+                            <img
+                              src={getImageForRoom(selectedRoom.name)}
+                              alt={selectedRoom.name}
+                              className="h-16 w-24 rounded-lg object-cover shadow-md"
+                            />
+                            <div>
+                              <span className="text-xs font-semibold uppercase tracking-widest text-amber-400">
+                                Reserved Accommodation
+                              </span>
+                              <h4 className="font-serif text-xl font-bold text-white">{selectedRoom.name}</h4>
+                              <p className="text-xs text-slate-300">
+                                Bedding: <strong className="text-white">{selectedRoomDetails?.beds ?? "King Bed"}</strong> · Standard Occupancy: {selectedRoom.capacity} Guests
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-left sm:text-right">
+                            <span className="text-xs text-slate-400">Direct Nightly Tariff</span>
+                            <p className="font-serif text-lg font-bold text-amber-400">
+                              {formatCurrency(selectedRoom.price_per_night)} <span className="text-xs font-normal text-slate-400">/ night</span>
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="border-t border-white/10 pt-3">
+                          <span className="block text-xs font-medium uppercase tracking-wider text-slate-400 mb-2">
+                            Included Comforts & Room Privileges:
+                          </span>
+                          <div className="flex flex-wrap gap-2">
+                            {[
+                              "Split Air Conditioning",
+                              "24-Hour Hot Water",
+                              "High-Speed Wi-Fi",
+                              "Complimentary Coastal Breakfast",
+                              "Free Highway Parking",
+                              "100% Generator Backup",
+                            ].map((inc) => (
+                              <span
+                                key={inc}
+                                className="inline-flex items-center gap-1 rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-[0.7rem] text-slate-200"
+                              >
+                                <span className="text-amber-400">✓</span> {inc}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section 3: Stay Schedule */}
+                      <div className="grid gap-4 sm:grid-cols-4 rounded-xl border border-white/10 bg-white/5 p-4 sm:p-5 text-center">
+                        <div className="sm:border-r sm:border-white/10">
+                          <span className="block text-xs uppercase tracking-wider text-slate-400">Check-in</span>
+                          <span className="mt-1 block text-sm font-semibold text-white">{safePrettyDate(checkIn)}</span>
+                          <span className="text-[0.7rem] text-amber-400 font-medium">From 12:00 PM</span>
+                        </div>
+                        <div className="sm:border-r sm:border-white/10">
+                          <span className="block text-xs uppercase tracking-wider text-slate-400">Check-out</span>
+                          <span className="mt-1 block text-sm font-semibold text-white">{safePrettyDate(checkOut)}</span>
+                          <span className="text-[0.7rem] text-slate-400">Until 11:00 AM</span>
+                        </div>
+                        <div className="sm:border-r sm:border-white/10">
+                          <span className="block text-xs uppercase tracking-wider text-slate-400">Duration</span>
+                          <span className="mt-1 block text-sm font-semibold text-amber-400">
+                            {nights} {nights === 1 ? "Night" : "Nights"}
+                          </span>
+                          <span className="text-[0.7rem] text-slate-400">Direct booking</span>
+                        </div>
+                        <div>
+                          <span className="block text-xs uppercase tracking-wider text-slate-400">Total Guests</span>
+                          <span className="mt-1 block text-sm font-semibold text-white">
+                            {adults} {adults === 1 ? "Adult" : "Adults"}
+                            {children > 0 ? `, ${children} Child` : ""}
+                          </span>
+                          <span className="text-[0.7rem] text-slate-400">1 Room</span>
+                        </div>
+                      </div>
+
+                      {/* Section 4: Billing Summary & Folio Breakdown */}
+                      <div className="rounded-xl border border-amber-400/20 bg-slate-950/60 p-5 sm:p-6 space-y-3">
+                        <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
+                          Billing Folio Summary
+                        </span>
+
+                        <div className="space-y-2 text-xs">
+                          <div className="flex justify-between text-slate-300">
+                            <span>
+                              {selectedRoom.name} Room Tariff ({nights} {nights === 1 ? "night" : "nights"} × {formatCurrency(selectedRoom.price_per_night)})
+                            </span>
+                            <span className="font-semibold text-white">
+                              {formatCurrency(selectedRoom.price_per_night * nights)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-slate-300">
+                            <span>Complimentary Coastal Breakfast (Daily 7:30 – 10:30 AM)</span>
+                            <span className="text-emerald-400 font-medium">Included (₹0)</span>
+                          </div>
+                          <div className="flex justify-between text-slate-300">
+                            <span>Taxes, Wi-Fi & Dedicated Highway Parking</span>
+                            <span className="text-emerald-400 font-medium">Included</span>
+                          </div>
+                          <div className="border-t border-white/10 pt-2 flex justify-between text-sm">
+                            <span className="font-semibold text-white">Total Estimated Tariff</span>
+                            <span className="font-serif text-lg font-bold text-amber-400">
+                              {formatCurrency(confirmation.estimated_total)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-slate-300 pt-1">
+                            <span>Advance Deposit Recorded:</span>
+                            <span className={`font-semibold ${paymentSuccess ? "text-emerald-400" : "text-slate-400"}`}>
+                              {paymentSuccess ? formatCurrency(payAmount) : "Pending (Pay at Reception)"}
+                            </span>
+                          </div>
+                          <div className="border-t border-white/10 pt-2 flex justify-between text-sm">
+                            <span className="font-bold text-white">Balance Due at Check-in:</span>
+                            <span className="font-serif text-base font-bold text-amber-300">
+                              {paymentSuccess
+                                ? formatCurrency(Math.max(0, confirmation.estimated_total - payAmount))
+                                : formatCurrency(confirmation.estimated_total)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section 5: Reception Check-in Guidelines */}
+                      <div className="border-t border-white/10 pt-4 text-xs text-slate-400 space-y-1.5">
+                        <p>
+                          📌 <strong>Check-in Policy:</strong> Standard check-in time is 12:00 PM. Please present your booking reference (<strong className="text-amber-400 font-mono">{confirmation.reference}</strong>) along with a valid Government Photo ID (Aadhaar, Passport, or Driving License) for all adult guests at reception.
+                        </p>
+                        <p>
+                          🍳 <strong>Breakfast Timings:</strong> Fresh coastal vegetarian & non-vegetarian breakfast is served daily from 7:30 AM to 10:30 AM.
+                        </p>
+                        <p>
+                          🚗 <strong>Parking & Directions:</strong> Free dedicated on-site parking is available directly in front of the hotel on Nitte Main Road (opposite campus junction).
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Integrated UPI Advance Payment */}
                   <div className="glass-card rounded-2xl p-6 sm:p-10">
                     <div className="border-b border-white/10 pb-6">
@@ -989,6 +1358,38 @@ function ReservationsPage() {
                       <span className="block text-xs text-slate-500">Estimated Total</span>
                       <span className="font-bold text-amber-400">{formatCurrency(lookupBookingData.estimated_total)}</span>
                     </div>
+                  </div>
+
+                  {/* Looked Up Booking Actions: WhatsApp, Print, Copy */}
+                  <div className="no-print flex flex-wrap items-center gap-3 border-t border-white/10 pt-4">
+                    <a
+                      href={`https://api.whatsapp.com/send?phone=${formatPhoneForWhatsApp(
+                        lookupPhone,
+                      )}&text=${encodeURIComponent(lookupReceiptText)}`}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow transition-all hover:bg-emerald-500"
+                    >
+                      <span>📲 Send to WhatsApp</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold text-white hover:bg-white/20"
+                    >
+                      <span>🖨️ Print Receipt Folio</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyReceipt(lookupReceiptText, true)}
+                      className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-white/10"
+                    >
+                      {manageCopiedReceipt ? (
+                        <span className="text-emerald-400 font-bold">✓ Copied!</span>
+                      ) : (
+                        <span>📋 Copy Details</span>
+                      )}
+                    </button>
                   </div>
 
                   {/* Pay Advance for looked up booking */}
