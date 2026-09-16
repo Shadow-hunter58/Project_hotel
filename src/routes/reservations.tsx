@@ -7,7 +7,6 @@ import {
   fetchAvailability,
   lookupBooking,
   recordPayment,
-  nightsBetween,
   type AvailabilityRow,
   type BookingResult,
   type BookingLookup,
@@ -35,20 +34,31 @@ export const Route = createFileRoute("/reservations")({
   component: ReservationsPage,
 });
 
-const today = () => new Date().toISOString().slice(0, 10);
-const addDays = (iso: string, days: number) => {
-  const d = new Date(`${iso}T00:00:00`);
-  d.setDate(d.getDate() + days);
+const safeToday = () => {
+  const d = new Date();
   return d.toISOString().slice(0, 10);
 };
 
-const prettyDate = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString("en-IN", {
+const safeAddDays = (iso: string, days: number): string => {
+  if (!iso) return safeToday();
+  const d = new Date(`${iso}T00:00:00`);
+  if (isNaN(d.getTime())) return safeToday();
+  d.setDate(d.getDate() + days);
+  if (isNaN(d.getTime())) return safeToday();
+  return d.toISOString().slice(0, 10);
+};
+
+const safePrettyDate = (iso: string): string => {
+  if (!iso) return "";
+  const d = new Date(`${iso}T00:00:00`);
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("en-IN", {
     weekday: "short",
     day: "numeric",
     month: "short",
     year: "numeric",
   });
+};
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -57,8 +67,8 @@ function ReservationsPage() {
   const [activeTab, setActiveTab] = useState<"book" | "manage">("book");
 
   // Booking Flow State
-  const [checkIn, setCheckIn] = useState(today);
-  const [checkOut, setCheckOut] = useState(() => addDays(today(), 1));
+  const [checkIn, setCheckIn] = useState(safeToday);
+  const [checkOut, setCheckOut] = useState(() => safeAddDays(safeToday(), 1));
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
 
@@ -95,13 +105,22 @@ function ReservationsPage() {
   const [managePaySuccess, setManagePaySuccess] = useState(false);
   const [managePayError, setManagePayError] = useState<string | null>(null);
 
-  const nights = useMemo(() => Math.max(1, nightsBetween(checkIn, checkOut)), [checkIn, checkOut]);
+  const nights = useMemo(() => {
+    if (!checkIn || !checkOut) return 1;
+    const tIn = new Date(`${checkIn}T00:00:00`).getTime();
+    const tOut = new Date(`${checkOut}T00:00:00`).getTime();
+    if (isNaN(tIn) || isNaN(tOut) || tOut <= tIn) return 1;
+    return Math.max(1, Math.round((tOut - tIn) / 86400000));
+  }, [checkIn, checkOut]);
 
-  // Sync check-in changes so check-out is at least 1 day after
+  // Sync check-in changes safely
   const handleCheckInChange = (newDate: string) => {
     setCheckIn(newDate);
-    if (new Date(newDate) >= new Date(checkOut)) {
-      setCheckOut(addDays(newDate, 1));
+    if (!newDate) return;
+    const dIn = new Date(`${newDate}T00:00:00`);
+    const dOut = new Date(`${checkOut}T00:00:00`);
+    if (isNaN(dIn.getTime()) || isNaN(dOut.getTime()) || dIn >= dOut) {
+      setCheckOut(safeAddDays(newDate, 1));
     }
   };
 
@@ -136,13 +155,15 @@ function ReservationsPage() {
 
     try {
       const res = await createBooking({
-        room_type_id: selectedRoom.room_type_id,
-        check_in: checkIn,
-        check_out: checkOut,
-        guest_name: guestName.trim(),
-        guest_phone: guestPhone.trim(),
-        guest_email: guestEmail.trim() || undefined,
-        num_guests: adults + children,
+        roomTypeId: selectedRoom.room_type_id,
+        checkIn,
+        checkOut,
+        guestName: guestName.trim(),
+        guestPhone: guestPhone.trim(),
+        guestEmail: guestEmail.trim() || undefined,
+        adults,
+        children,
+        rooms: 1,
         notes: notes.trim() || undefined,
       });
 
@@ -168,7 +189,7 @@ function ReservationsPage() {
     setSubmittingPayment(true);
     setPaymentError(null);
     try {
-      await recordPayment(confirmation.reference, guestPhone.trim(), payAmount, utrNumber.trim());
+      await recordPayment(confirmation.reference, guestPhone.trim(), utrNumber.trim());
       setPaymentSuccess(true);
     } catch (err) {
       setPaymentError(err instanceof Error ? err.message : "Could not record payment details. Front desk will verify upon arrival.");
@@ -191,7 +212,9 @@ function ReservationsPage() {
     try {
       const data = await lookupBooking(lookupRef.trim(), lookupPhone.trim());
       setLookupBookingData(data);
-      setManagePayAmount(Math.min(data.estimated_total, 1000));
+      if (data) {
+        setManagePayAmount(Math.min(data.estimated_total, 1000));
+      }
     } catch (err) {
       setLookupError(err instanceof Error ? err.message : "No reservation found matching those details.");
     } finally {
@@ -209,7 +232,7 @@ function ReservationsPage() {
     setManageSubmittingPay(true);
     setManagePayError(null);
     try {
-      await recordPayment(lookupBookingData.reference, lookupPhone.trim(), managePayAmount, manageUtr.trim());
+      await recordPayment(lookupBookingData.reference, lookupPhone.trim(), manageUtr.trim());
       setManagePaySuccess(true);
     } catch (err) {
       setManagePayError(err instanceof Error ? err.message : "Failed to record payment.");
@@ -329,7 +352,7 @@ function ReservationsPage() {
                       </label>
                       <input
                         type="date"
-                        min={today()}
+                        min={safeToday()}
                         value={checkIn}
                         onChange={(e) => handleCheckInChange(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400"
@@ -342,7 +365,7 @@ function ReservationsPage() {
                       </label>
                       <input
                         type="date"
-                        min={addDays(checkIn, 1)}
+                        min={safeAddDays(checkIn, 1)}
                         value={checkOut}
                         onChange={(e) => setCheckOut(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400"
@@ -390,7 +413,7 @@ function ReservationsPage() {
                         {nights} {nights === 1 ? "Night" : "Nights"}
                       </span>
                       <span>
-                        {prettyDate(checkIn)} → {prettyDate(checkOut)}
+                        {safePrettyDate(checkIn)} → {safePrettyDate(checkOut)}
                       </span>
                     </div>
 
@@ -434,7 +457,7 @@ function ReservationsPage() {
                     <div>
                       <h2 className="font-serif text-2xl font-semibold text-white">Available Accommodations</h2>
                       <p className="text-sm text-slate-400">
-                        {prettyDate(checkIn)} to {prettyDate(checkOut)} · {nights} {nights === 1 ? "night" : "nights"} · {adults + children} {adults + children === 1 ? "guest" : "guests"}
+                        {safePrettyDate(checkIn)} to {safePrettyDate(checkOut)} · {nights} {nights === 1 ? "night" : "nights"} · {adults + children} {adults + children === 1 ? "guest" : "guests"}
                       </p>
                     </div>
                     <button
@@ -450,7 +473,8 @@ function ReservationsPage() {
                     <div className="grid gap-6 md:grid-cols-3">
                       {results.map((room) => {
                         const isSelected = selectedRoom?.room_type_id === room.room_type_id;
-                        const isAvailable = room.available_count > 0;
+                        const availableUnits = room.units_available ?? 0;
+                        const isAvailable = availableUnits > 0;
                         const estimatedTotal = room.price_per_night * nights;
 
                         return (
@@ -471,7 +495,7 @@ function ReservationsPage() {
                               <div className="absolute top-3 right-3">
                                 {isAvailable ? (
                                   <span className="rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-semibold text-white shadow backdrop-blur-md">
-                                    {room.available_count} Available
+                                    {availableUnits} Available
                                   </span>
                                 ) : (
                                   <span className="rounded-full bg-rose-600/90 px-3 py-1 text-xs font-semibold text-white shadow backdrop-blur-md">
@@ -484,9 +508,9 @@ function ReservationsPage() {
                             <div className="flex flex-1 flex-col p-5">
                               <div className="flex-1">
                                 <h3 className="font-serif text-xl font-semibold text-white">{room.name}</h3>
-                                <p className="mt-1 text-xs text-amber-400/90">Max {room.max_occupancy} guests</p>
+                                <p className="mt-1 text-xs text-amber-400/90">Max {room.capacity ?? 2} guests</p>
                                 <p className="mt-3 text-xs leading-relaxed text-slate-300 line-clamp-2">
-                                  {room.description || "Air-conditioned comfort with 24-hour hot water, television, and complimentary breakfast."}
+                                  Air-conditioned comfort with 24-hour hot water, television, and complimentary breakfast.
                                 </p>
                               </div>
 
@@ -549,7 +573,7 @@ function ReservationsPage() {
                     <div>
                       <h2 className="font-serif text-2xl font-semibold text-white">Guest & Contact Details</h2>
                       <p className="mt-1 text-sm text-slate-400">
-                        Reserving: <strong className="text-amber-400">{selectedRoom.name}</strong> for {nights} {nights === 1 ? "night" : "nights"} ({prettyDate(checkIn)} to {prettyDate(checkOut)})
+                        Reserving: <strong className="text-amber-400">{selectedRoom.name}</strong> for {nights} {nights === 1 ? "night" : "nights"} ({safePrettyDate(checkIn)} to {safePrettyDate(checkOut)})
                       </p>
                     </div>
                     <button
@@ -680,7 +704,7 @@ function ReservationsPage() {
               )}
 
               {/* STEP 4: CONFIRMATION & INTEGRATED PAYMENT */}
-              {step === 4 && confirmation && (
+              {step === 4 && confirmation && selectedRoom && (
                 <div className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
                   {/* Confirmed Banner */}
                   <div className="glass-card rounded-2xl border-emerald-500/30 p-6 sm:p-10 text-center">
@@ -709,17 +733,17 @@ function ReservationsPage() {
                     <div className="mt-8 grid gap-4 text-left sm:grid-cols-2 lg:grid-cols-4 border-t border-white/10 pt-6">
                       <div className="p-3 rounded-lg bg-white/5">
                         <span className="block text-xs text-slate-400 uppercase">Guest</span>
-                        <span className="mt-1 block text-sm font-semibold text-white">{confirmation.guest_name}</span>
+                        <span className="mt-1 block text-sm font-semibold text-white">{guestName}</span>
                       </div>
                       <div className="p-3 rounded-lg bg-white/5">
                         <span className="block text-xs text-slate-400 uppercase">Stay Dates</span>
                         <span className="mt-1 block text-sm font-semibold text-white">
-                          {prettyDate(confirmation.check_in)} → {prettyDate(confirmation.check_out)}
+                          {safePrettyDate(checkIn)} → {safePrettyDate(checkOut)}
                         </span>
                       </div>
                       <div className="p-3 rounded-lg bg-white/5">
                         <span className="block text-xs text-slate-400 uppercase">Room Type</span>
-                        <span className="mt-1 block text-sm font-semibold text-white">{confirmation.room_type}</span>
+                        <span className="mt-1 block text-sm font-semibold text-white">{selectedRoom.name}</span>
                       </div>
                       <div className="p-3 rounded-lg bg-white/5">
                         <span className="block text-xs text-slate-400 uppercase">Estimated Total</span>
@@ -954,12 +978,12 @@ function ReservationsPage() {
                     <div>
                       <span className="block text-xs text-slate-500">Dates</span>
                       <span className="font-medium text-white">
-                        {prettyDate(lookupBookingData.check_in)} → {prettyDate(lookupBookingData.check_out)}
+                        {safePrettyDate(lookupBookingData.check_in)} → {safePrettyDate(lookupBookingData.check_out)}
                       </span>
                     </div>
                     <div>
                       <span className="block text-xs text-slate-500">Room</span>
-                      <span className="font-medium text-white">{lookupBookingData.room_type}</span>
+                      <span className="font-medium text-white">{lookupBookingData.room_name}</span>
                     </div>
                     <div>
                       <span className="block text-xs text-slate-500">Estimated Total</span>
