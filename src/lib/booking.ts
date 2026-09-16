@@ -96,3 +96,68 @@ export const nightsBetween = (checkIn: string, checkOut: string) =>
         86400000,
     ),
   );
+
+export type ReceiptDetails = {
+  reference: string;
+  guestName: string;
+  guestPhone: string;
+  guestEmail?: string | undefined;
+  roomName: string;
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+  adults: number;
+  children: number;
+  totalTariff: number;
+  paymentStatus?: string | undefined;
+  advancePaid?: number | undefined;
+  amenities?: string[] | undefined;
+};
+
+export function formatReceiptText(details: ReceiptDetails): string {
+  const lines = [
+    `🏨 *HOTEL RATNA FOREVER, NITTE*`,
+    `*Booking Confirmation & Stay Receipt*`,
+    `----------------------------------------`,
+    `📌 *Booking Reference:* ${details.reference}`,
+    `👤 *Guest Name:* ${details.guestName}`,
+    `📞 *Guest Contact:* ${details.guestPhone}`,
+    ...(details.guestEmail ? [`✉️ *Email:* ${details.guestEmail}`] : []),
+    ``,
+    `🛏️ *Room Details:*`,
+    `• Category: ${details.roomName}`,
+    `• Inclusions: Split AC, 24-hr Hot Water, Wi-Fi, Breakfast Included`,
+    ...(details.amenities && details.amenities.length > 0
+      ? [`• Amenities: ${details.amenities.join(", ")}`]
+      : []),
+    ``,
+    `📅 *Stay Schedule:*`,
+    `• Check-in: ${details.checkIn} (From 12:00 PM)`,
+    `• Check-out: ${details.checkOut} (Until 11:00 AM)`,
+    `• Duration: ${details.nights} ${details.nights === 1 ? "Night" : "Nights"}`,
+    `• Occupancy: ${details.adults} ${details.adults === 1 ? "Adult" : "Adults"}${
+      details.children > 0 ? `, ${details.children} Child` : ""
+    }`,
+    ``,
+    `💰 *Billing & Tariff Details:*`,
+    `• Estimated Tariff: INR ${details.totalTariff.toLocaleString("en-IN")}`,
+    `• Payment Status: ${details.paymentStatus ?? "Confirmed at Front Desk"}`,
+    ...(details.advancePaid && details.advancePaid > 0
+      ? [
+          `• Advance Recorded: INR ${details.advancePaid.toLocaleString("en-IN")}`,
+          `• Balance Due at Check-in: INR ${Math.max(
+            0,
+            details.totalTariff - details.advancePaid,
+          ).toLocaleString("en-IN")}`,
+        ]
+      : []),
+    ``,
+    `📍 *Hotel Address:*`,
+    `Hotel Ratna Forever, Main Road, Nitte, Karkala Taluk, Udupi Dist, Karnataka 574110`,
+    `📞 Front Desk: +91 73380 88744`,
+    `----------------------------------------`,
+    `_Thank you for choosing Hotel Ratna Forever! Please present this booking reference at reception._`,
+  ];
+  return lines.join("\n");
+}
+
