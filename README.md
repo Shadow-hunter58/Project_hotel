@@ -113,37 +113,59 @@ All content has been consolidated into four clean, high-impact pages:
 
 ---
 
-## 🚀 Getting Started Locally
+## 🚀 How to Install and Run
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18.0.0 or higher recommended)
-- `npm` or `bun`
+- **Node.js**: v18.0.0 or higher (v20+ LTS recommended) — [Download Node.js](https://nodejs.org/)
+- **Package Manager**: `npm` (bundled with Node.js) or `pnpm` / `bun`
+- **Git**: [Download Git](https://git-scm.com/)
 
-### 1. Clone the Repository
+---
+
+### Step-by-Step Quickstart
+
+#### 1. Clone the Repository
 ```bash
 git clone https://github.com/Shadow-hunter58/Project_hotel.git
 cd Project_hotel
 ```
 
-### 2. Install Dependencies
+#### 2. Install Dependencies
+Run npm install in the project root directory:
 ```bash
 npm install
 ```
 
-### 3. Configure Environment Variables
-Create a `.env` file in the root directory (or use the configured Supabase connection):
-
+#### 3. Configure Environment Variables
+Create a `.env` file in the root directory:
 ```env
 VITE_SUPABASE_URL="https://your-supabase-project-id.supabase.co"
 VITE_SUPABASE_PUBLISHABLE_KEY="your-supabase-publishable-key"
 ```
+*(Note: Default public demo credentials are pre-configured in `src/integrations/supabase/client.ts` for immediate local preview.)*
 
-### 4. Start the Development Server
+#### 4. Start the Local Development Server
 ```bash
 npm run dev
 ```
+Open your browser and navigate to:
+```text
+http://localhost:8080/
+```
+The Vite development server will automatically reload when you save changes to source files.
 
-The site will be available locally at `http://localhost:8080/`.
+#### 5. Validate TypeScript Types
+To run strict static type-checking across all routes and libraries:
+```bash
+npx tsc --noEmit
+```
+
+#### 6. Build for Production
+To compile and test the full production-optimized bundle:
+```bash
+npm run build
+```
+The compiled output is generated in `.output/` and can be previewed or deployed to Cloudflare / Vercel / Netlify.
 
 ---
 

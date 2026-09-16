@@ -335,7 +335,7 @@ function HomePage() {
                 <div className="space-y-4">
                   <div className="overflow-hidden rounded-2xl shadow-xl">
                     <img
-                      src={gallery[4].src}
+                      src={gallery[4]?.src}
                       alt="Suite dining area"
                       className="h-64 w-full object-cover transition-transform duration-500 hover:scale-105"
                     />
@@ -353,7 +353,7 @@ function HomePage() {
                   </div>
                   <div className="overflow-hidden rounded-2xl shadow-xl">
                     <img
-                      src={gallery[3].src}
+                      src={gallery[3]?.src}
                       alt="Lobby lounge & dining"
                       className="h-64 w-full object-cover transition-transform duration-500 hover:scale-105"
                     />

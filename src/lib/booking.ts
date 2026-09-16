@@ -43,13 +43,13 @@ export async function createBooking(input: {
   roomTypeId: string;
   guestName: string;
   guestPhone: string;
-  guestEmail?: string;
+  guestEmail?: string | undefined;
   checkIn: string;
   checkOut: string;
   adults: number;
   children: number;
   rooms: number;
-  notes?: string;
+  notes?: string | undefined;
 }) {
   const { data, error } = await supabase.rpc("create_booking", {
     _room_type_id: input.roomTypeId,
