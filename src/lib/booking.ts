@@ -161,3 +161,18 @@ export function formatReceiptText(details: ReceiptDetails): string {
   return lines.join("\n");
 }
 
+export function formatSmsText(details: ReceiptDetails): string {
+  return `HOTEL RATNA FOREVER, NITTE
+Booking Confirmed!
+Ref: ${details.reference}
+Guest: ${details.guestName}
+Room: ${details.roomName}
+Check-in: ${details.checkIn} (12 PM)
+Check-out: ${details.checkOut} (11 AM)
+Nights: ${details.nights} | Total: INR ${details.totalTariff.toLocaleString("en-IN")}
+Status: ${details.paymentStatus ?? "Confirmed at Front Desk"}
+Address: Main Rd, Nitte, Karkala Taluk
+Front Desk: +91 73380 88744`;
+}
+
+
