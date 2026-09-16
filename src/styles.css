@@ -214,16 +214,58 @@
 }
 
 @utility glass-card {
-  background: oklch(0.16 0.02 50 / 0.85);
-  backdrop-filter: blur(20px) saturate(1.4);
-  border: 1px solid oklch(1 0 0 / 0.14);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  background: oklch(0.14 0.015 50 / 0.7);
+  backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid oklch(1 0 0 / 0.08);
+  box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+}
+
+@utility editorial-card {
+  background: rgba(15, 20, 29, 0.65);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  &:hover {
+    border-color: rgba(212, 175, 55, 0.25);
+    background: rgba(18, 24, 35, 0.75);
+  }
+}
+
+@utility champagne-btn {
+  background: linear-gradient(135deg, #dfbc5e 0%, #c5a045 100%);
+  color: #0b0f19;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(223, 188, 94, 0.2);
+  &:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(223, 188, 94, 0.3);
+  }
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+@utility pill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(226, 232, 240, 0.85);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 @utility glass-header {
-  background: oklch(0.18 0.02 50 / 0.85);
-  backdrop-filter: blur(24px) saturate(1.6);
-  border-bottom: 1px solid oklch(1 0 0 / 0.08);
+  background: oklch(0.14 0.015 50 / 0.85);
+  backdrop-filter: blur(24px) saturate(1.4);
+  border-bottom: 1px solid oklch(1 0 0 / 0.06);
 }
 
 @utility shimmer-btn {
@@ -259,11 +301,11 @@
 }
 
 @utility section-padding {
-  padding-top: 5rem;
-  padding-bottom: 5rem;
+  padding-top: 4.5rem;
+  padding-bottom: 4.5rem;
   @media (min-width: 768px) {
-    padding-top: 7rem;
-    padding-bottom: 7rem;
+    padding-top: 6rem;
+    padding-bottom: 6rem;
   }
 }
 
