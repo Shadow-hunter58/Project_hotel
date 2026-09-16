@@ -41,16 +41,25 @@ export const Route = createFileRoute("/reservations")({
 
 const safeToday = () => {
   const d = new Date();
-  return d.toISOString().slice(0, 10);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
 const safeAddDays = (iso: string, days: number): string => {
   if (!iso) return safeToday();
-  const d = new Date(`${iso}T00:00:00`);
-  if (isNaN(d.getTime())) return safeToday();
-  d.setDate(d.getDate() + days);
-  if (isNaN(d.getTime())) return safeToday();
-  return d.toISOString().slice(0, 10);
+  const [yStr, mStr, dStr] = iso.split("-");
+  const y = Number(yStr);
+  const m = Number(mStr);
+  const d = Number(dStr);
+  if (!y || !m || !d || isNaN(y) || isNaN(m) || isNaN(d)) return safeToday();
+  const date = new Date(y, m - 1, d);
+  date.setDate(date.getDate() + days);
+  const rY = date.getFullYear();
+  const rM = String(date.getMonth() + 1).padStart(2, "0");
+  const rD = String(date.getDate()).padStart(2, "0");
+  return `${rY}-${rM}-${rD}`;
 };
 
 const safePrettyDate = (iso: string): string => {
@@ -258,15 +267,29 @@ function ReservationsPage() {
   const handleCheckInChange = (newDate: string) => {
     setCheckIn(newDate);
     if (!newDate) return;
-    const dIn = new Date(`${newDate}T00:00:00`);
-    const dOut = new Date(`${checkOut}T00:00:00`);
-    if (isNaN(dIn.getTime()) || isNaN(dOut.getTime()) || dIn >= dOut) {
+    if (!checkOut || checkOut <= newDate) {
       setCheckOut(safeAddDays(newDate, 1));
+    }
+    setSearchError(null);
+  };
+
+  // Sync check-out changes
+  const handleCheckOutChange = (newDate: string) => {
+    setCheckOut(newDate);
+    if (!newDate) return;
+    if (checkIn && newDate <= checkIn) {
+      setSearchError("Check-out date must be at least 1 day after check-in.");
+    } else {
+      setSearchError(null);
     }
   };
 
   // Trigger availability search
   const handleSearch = async () => {
+    if (!checkIn || !checkOut || checkOut <= checkIn) {
+      setSearchError("Check-out date must be at least 1 day after check-in. Hotel stays require at least 1 night.");
+      return;
+    }
     setLoading(true);
     setSearchError(null);
     setSelectedRoom(null);
@@ -285,6 +308,16 @@ function ReservationsPage() {
   const handleConfirmBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRoom) return;
+
+    if (!checkIn || !checkOut || checkOut <= checkIn) {
+      setFormError("Check-out must be after check-in. Hotel reservations require at least a 1-night stay.");
+      return;
+    }
+
+    if (checkIn < safeToday()) {
+      setFormError("Check-in date cannot be in the past. Please select today or an upcoming date.");
+      return;
+    }
 
     if (!guestName.trim() || !guestPhone.trim()) {
       setFormError("Please enter your full name and contact number.");
@@ -470,13 +503,22 @@ function ReservationsPage() {
                       { num: 4, label: "Confirmation & Payment" },
                     ].map((s, idx) => (
                       <div key={s.num} className="flex items-center">
-                        <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-3">
+                        <button
+                          type="button"
+                          disabled={s.num >= step}
+                          onClick={() => {
+                            if (s.num < step) setStep(s.num as 1 | 2 | 3 | 4);
+                          }}
+                          className={`flex flex-col items-center gap-1.5 sm:flex-row sm:gap-3 transition-opacity ${
+                            s.num < step ? "cursor-pointer hover:opacity-80" : "cursor-default"
+                          }`}
+                        >
                           <span
                             className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all ${
                               step === s.num
                                 ? "bg-amber-400 text-slate-950 ring-4 ring-amber-400/20"
                                 : step > s.num
-                                ? "bg-emerald-500 text-white"
+                                ? "bg-emerald-500 text-white hover:ring-2 hover:ring-emerald-400/50"
                                 : "bg-white/10 text-slate-400"
                             }`}
                           >
@@ -484,12 +526,16 @@ function ReservationsPage() {
                           </span>
                           <span
                             className={`hidden text-xs font-medium tracking-wide md:inline ${
-                              step === s.num ? "text-amber-400 font-semibold" : "text-slate-400"
+                              step === s.num
+                                ? "text-amber-400 font-semibold"
+                                : step > s.num
+                                ? "text-emerald-300 hover:text-emerald-200 underline decoration-dotted underline-offset-4"
+                                : "text-slate-400"
                             }`}
                           >
                             {s.label}
                           </span>
-                        </div>
+                        </button>
                         {idx < 3 && (
                           <div className={`mx-2 h-0.5 w-6 sm:w-12 lg:w-20 ${step > idx + 1 ? "bg-emerald-500/50" : "bg-white/10"}`} />
                         )}
@@ -531,7 +577,7 @@ function ReservationsPage() {
                         type="date"
                         min={safeAddDays(checkIn, 1)}
                         value={checkOut}
-                        onChange={(e) => setCheckOut(e.target.value)}
+                        onChange={(e) => handleCheckOutChange(e.target.value)}
                         className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400"
                       />
                     </div>
@@ -740,13 +786,28 @@ function ReservationsPage() {
                         Reserving: <strong className="text-amber-400">{selectedRoom.name}</strong> for {nights} {nights === 1 ? "night" : "nights"} ({safePrettyDate(checkIn)} to {safePrettyDate(checkOut)})
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setStep(2)}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:bg-white/10"
-                    >
-                      ← Change Room
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormError(null);
+                          setStep(1);
+                        }}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+                      >
+                        ← Change Dates
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormError(null);
+                          setStep(2);
+                        }}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+                      >
+                        ← Change Room
+                      </button>
+                    </div>
                   </div>
 
                   <form onSubmit={handleConfirmBooking} className="mt-6 space-y-6">
@@ -813,8 +874,40 @@ function ReservationsPage() {
                     </div>
 
                     {formError && (
-                      <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-300">
-                        {formError}
+                      <div className="rounded-xl border border-rose-500/40 bg-rose-950/40 p-4 text-rose-200 shadow-lg">
+                        <div className="flex items-start gap-3">
+                          <svg className="h-5 w-5 shrink-0 text-rose-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          <div className="flex-1 space-y-2">
+                            <p className="text-sm font-semibold">{formError}</p>
+                            {(formError.toLowerCase().includes("check-out") || formError.toLowerCase().includes("check-in") || checkOut <= checkIn) && (
+                              <div className="flex flex-wrap items-center gap-2 pt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const nextDay = safeAddDays(checkIn || safeToday(), 1);
+                                    setCheckOut(nextDay);
+                                    setFormError(null);
+                                  }}
+                                  className="rounded-lg bg-amber-400 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-950 transition-colors hover:bg-amber-300"
+                                >
+                                  ⚡ Fix: Auto-Set 1 Night Stay ({safePrettyDate(checkIn || safeToday())} → {safePrettyDate(safeAddDays(checkIn || safeToday(), 1))})
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setFormError(null);
+                                    setStep(1);
+                                  }}
+                                  className="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/20"
+                                >
+                                  ← Go Back to Pick Dates
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     )}
 
