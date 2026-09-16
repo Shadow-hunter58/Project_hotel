@@ -351,28 +351,45 @@
   }
 }
 
-/* ═══ Print Styles for Official Booking Receipt ═══ */
+/* ═══ Print Styles for Official Booking Receipt & PDF Voucher ═══ */
 @media print {
-  body {
-    background: #ffffff !important;
-    color: #0f172a !important;
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
   }
 
-  header, footer, .no-print, nav {
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide interactive chrome and navigation */
+  header, footer, nav, .no-print, [role="banner"], [role="navigation"] {
     display: none !important;
+  }
+
+  /* Show print-only elements */
+  .print-only {
+    display: block !important;
   }
 
   .print-receipt-container {
     display: block !important;
     background: #ffffff !important;
     color: #0f172a !important;
-    border: 1px solid #cbd5e1 !important;
+    border: 2px solid #b45309 !important;
     box-shadow: none !important;
-    padding: 2rem !important;
-    margin: 0 !important;
+    padding: 24px 28px !important;
+    margin: 0 auto !important;
     width: 100% !important;
     max-width: 100% !important;
-    page-break-inside: avoid;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    border-radius: 8px !important;
   }
 
   .print-receipt-container * {
@@ -380,19 +397,44 @@
     border-color: #cbd5e1 !important;
     text-shadow: none !important;
     box-shadow: none !important;
+    background-image: none !important;
+  }
+
+  .print-receipt-container h1,
+  .print-receipt-container h2,
+  .print-receipt-container h3,
+  .print-receipt-container h4 {
+    color: #020617 !important;
+    font-family: Georgia, serif !important;
   }
 
   .print-receipt-container .text-amber-400,
   .print-receipt-container .text-amber-300,
-  .print-receipt-container .text-amber-500 {
+  .print-receipt-container .text-amber-500,
+  .print-receipt-container .text-amber-600 {
     color: #b45309 !important;
+    font-weight: 700 !important;
+  }
+
+  .print-receipt-container .text-emerald-400,
+  .print-receipt-container .text-emerald-300 {
+    color: #047857 !important;
     font-weight: 700 !important;
   }
 
   .print-receipt-container .bg-slate-950,
   .print-receipt-container .bg-slate-900,
-  .print-receipt-container .bg-white\/5 {
+  .print-receipt-container .bg-white\/5,
+  .print-receipt-container .bg-slate-950\/95,
+  .print-receipt-container .bg-slate-950\/60,
+  .print-receipt-container .bg-slate-900\/50 {
     background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  .print-receipt-container .rounded-2xl {
+    border-radius: 8px !important;
   }
 }
+
 
