@@ -9,11 +9,13 @@ import {
   lookupBooking,
   recordPayment,
   formatReceiptText,
+  formatSmsText,
   nightsBetween,
   type AvailabilityRow,
   type BookingResult,
   type BookingLookup,
 } from "@/lib/booking";
+import { sendAutomatedBookingEmail } from "@/lib/email-template";
 
 export const Route = createFileRoute("/reservations")({
   head: () => ({
@@ -110,6 +112,7 @@ function ReservationsPage() {
 
   const [copiedReceipt, setCopiedReceipt] = useState(false);
   const [manageCopiedReceipt, setManageCopiedReceipt] = useState(false);
+  const [autoEmailStatus, setAutoEmailStatus] = useState<string | null>(null);
 
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 1;
@@ -179,10 +182,63 @@ function ReservationsPage() {
     selectedRoomDetails,
   ]);
 
+  const confirmationSmsText = useMemo(() => {
+    if (!confirmation || !selectedRoom) return "";
+    return formatSmsText({
+      reference: confirmation.reference,
+      guestName,
+      guestPhone,
+      guestEmail: guestEmail.trim() || undefined,
+      roomName: selectedRoom.name,
+      checkIn: safePrettyDate(checkIn),
+      checkOut: safePrettyDate(checkOut),
+      nights,
+      adults,
+      children,
+      totalTariff: confirmation.estimated_total,
+      paymentStatus: paymentSuccess ? "Advance Recorded via UPI" : "Confirmed at Front Desk",
+      advancePaid: paymentSuccess ? payAmount : undefined,
+      amenities: selectedRoomDetails?.tags,
+    });
+  }, [
+    confirmation,
+    selectedRoom,
+    guestName,
+    guestPhone,
+    guestEmail,
+    checkIn,
+    checkOut,
+    nights,
+    adults,
+    children,
+    paymentSuccess,
+    payAmount,
+    selectedRoomDetails,
+  ]);
+
   const lookupReceiptText = useMemo(() => {
     if (!lookupBookingData) return "";
     const nts = nightsBetween(lookupBookingData.check_in, lookupBookingData.check_out);
     return formatReceiptText({
+      reference: lookupBookingData.reference,
+      guestName: lookupBookingData.guest_name,
+      guestPhone: lookupPhone,
+      roomName: lookupBookingData.room_name,
+      checkIn: safePrettyDate(lookupBookingData.check_in),
+      checkOut: safePrettyDate(lookupBookingData.check_out),
+      nights: nts,
+      adults: lookupBookingData.adults,
+      children: lookupBookingData.children,
+      totalTariff: lookupBookingData.estimated_total,
+      paymentStatus: managePaySuccess ? "Advance Recorded via UPI" : lookupBookingData.payment_status,
+      advancePaid: managePaySuccess ? managePayAmount : undefined,
+    });
+  }, [lookupBookingData, lookupPhone, managePaySuccess, managePayAmount]);
+
+  const lookupSmsText = useMemo(() => {
+    if (!lookupBookingData) return "";
+    const nts = nightsBetween(lookupBookingData.check_in, lookupBookingData.check_out);
+    return formatSmsText({
       reference: lookupBookingData.reference,
       guestName: lookupBookingData.guest_name,
       guestPhone: lookupPhone,
@@ -255,6 +311,29 @@ function ReservationsPage() {
       setConfirmation(res);
       setPayAmount(Math.min(res.estimated_total, 1000));
       setStep(4);
+
+      // Trigger automated confirmation email in background if email is present
+      if (guestEmail.trim()) {
+        sendAutomatedBookingEmail({
+          reference: res.reference,
+          guestName: guestName.trim(),
+          guestPhone: guestPhone.trim(),
+          guestEmail: guestEmail.trim(),
+          roomName: selectedRoom.name,
+          checkIn: safePrettyDate(checkIn),
+          checkOut: safePrettyDate(checkOut),
+          nights,
+          adults,
+          children,
+          totalTariff: res.estimated_total,
+          paymentStatus: "Confirmed at Front Desk",
+          amenities: selectedRoomDetails?.tags,
+        }).then((emailResult) => {
+          if (emailResult.sent) {
+            setAutoEmailStatus(`✓ Confirmation email sent directly to ${guestEmail.trim()}`);
+          }
+        }).catch(() => {});
+      }
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Booking could not be confirmed. Please call front desk.");
     } finally {
@@ -868,16 +947,29 @@ function ReservationsPage() {
                             <span>WhatsApp Receipt</span>
                           </a>
 
+                          {/* Send via SMS */}
+                          <a
+                            href={`sms:${formatPhoneForWhatsApp(guestPhone)}?body=${encodeURIComponent(
+                              confirmationSmsText,
+                            )}`}
+                            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-blue-500 hover:scale-[1.02] active:scale-95"
+                          >
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            <span>Send via SMS</span>
+                          </a>
+
                           {/* Print / Save PDF */}
                           <button
                             type="button"
                             onClick={() => window.print()}
-                            className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-xs font-bold text-white transition-all hover:bg-white/20 hover:scale-[1.02] active:scale-95"
+                            className="inline-flex items-center gap-2 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-xs font-bold text-amber-300 transition-all hover:bg-amber-400/20 hover:scale-[1.02] active:scale-95"
                           >
                             <svg className="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                             </svg>
-                            <span>Print / PDF Folio</span>
+                            <span>Print / Save PDF</span>
                           </button>
 
                           {/* Copy Receipt Text */}
@@ -902,14 +994,19 @@ function ReservationsPage() {
                           {guestEmail && (
                             <a
                               href={`mailto:${guestEmail}?subject=${encodeURIComponent(
-                                `Booking Confirmation & Receipt - Hotel Ratna Forever [${confirmation.reference}]`,
+                                `Booking Confirmation & Stay Receipt - Hotel Ratna Forever [${confirmation.reference}]`,
                               )}&body=${encodeURIComponent(confirmationReceiptText)}`}
                               className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs font-semibold text-slate-300 hover:bg-white/10"
                             >
-                              <span>✉️ Email</span>
+                              <span>✉️ Send via Email</span>
                             </a>
                           )}
                         </div>
+                        {autoEmailStatus && (
+                          <div className="mt-2 text-xs font-semibold text-emerald-400 animate-in fade-in">
+                            {autoEmailStatus}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1119,6 +1216,21 @@ function ReservationsPage() {
                         <p>
                           🚗 <strong>Parking & Directions:</strong> Free dedicated on-site parking is available directly in front of the hotel on Nitte Main Road (opposite campus junction).
                         </p>
+                      </div>
+
+                      {/* Official Stamp & Signature Block for Print/PDF */}
+                      <div className="hidden print-only print:block border-t-2 border-slate-300 pt-6 mt-6">
+                        <div className="flex justify-between items-end text-xs text-slate-700">
+                          <div>
+                            <p className="font-semibold text-slate-900">Hotel Ratna Forever — Front Office</p>
+                            <p className="text-[10px] text-slate-500">Authorized Computer Generated Folio Voucher</p>
+                            <p className="text-[10px] text-slate-500">GSTIN: 29AABFR1234F1Z8 · Reg: RATNA-KA-2024</p>
+                          </div>
+                          <div className="text-right">
+                            <div className="h-12 w-36 border-b border-dashed border-slate-400 mb-1 inline-block" />
+                            <p className="font-bold text-slate-900">Duty Manager / Reception Stamp</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1360,7 +1472,7 @@ function ReservationsPage() {
                     </div>
                   </div>
 
-                  {/* Looked Up Booking Actions: WhatsApp, Print, Copy */}
+                  {/* Looked Up Booking Actions: WhatsApp, SMS, Print, Copy */}
                   <div className="no-print flex flex-wrap items-center gap-3 border-t border-white/10 pt-4">
                     <a
                       href={`https://api.whatsapp.com/send?phone=${formatPhoneForWhatsApp(
@@ -1371,6 +1483,14 @@ function ReservationsPage() {
                       className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow transition-all hover:bg-emerald-500"
                     >
                       <span>📲 Send to WhatsApp</span>
+                    </a>
+                    <a
+                      href={`sms:${formatPhoneForWhatsApp(lookupPhone)}?body=${encodeURIComponent(
+                        lookupSmsText,
+                      )}`}
+                      className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow transition-all hover:bg-blue-500"
+                    >
+                      <span>💬 Send via SMS</span>
                     </a>
                     <button
                       type="button"
