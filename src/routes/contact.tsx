@@ -28,14 +28,14 @@ export const Route = createFileRoute("/contact")({
 
 function ContactPage() {
   return (
-    <>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
       <PageHeader
         eyebrow="Contact & Location"
         title="Find Us in the Heart of Nitte"
         intro="Conveniently situated on the Nitte main highway with dedicated on-site parking. Easily accessible from Mangaluru Airport, Udupi Railway Station, and adjacent to the prestigious Nitte educational institutions."
       />
 
-      <section className="py-16 sm:py-24">
+      <section className="relative bg-slate-950 py-16 sm:py-24 text-slate-100">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="grid gap-10 lg:grid-cols-12">
             
@@ -161,6 +161,6 @@ function ContactPage() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }

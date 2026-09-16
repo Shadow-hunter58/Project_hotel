@@ -248,14 +248,14 @@ function ReservationsPage() {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
       <PageHeader
         eyebrow="Direct Hotel Reservations"
         title="Reserve Your Stay at Ratna Forever"
         intro="Direct booking guaranteed with immediate front-desk recording. Best rates, zero broker commissions, and hassle-free stay arrangements."
       />
 
-      <section className="relative min-h-[70vh] bg-slate-900/40 py-12 sm:py-16 md:py-24">
+      <section className="relative min-h-[70vh] bg-slate-950 py-12 sm:py-16 md:py-24 text-slate-100">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           
           {/* Main Mode Tabs */}
@@ -1044,6 +1044,6 @@ function ReservationsPage() {
 
         </div>
       </section>
-    </>
+    </div>
   );
 }

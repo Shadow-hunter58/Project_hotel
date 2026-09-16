@@ -37,7 +37,7 @@ const roomFeatures = [
 
 function RoomsPage() {
   return (
-    <>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
       <PageHeader
         eyebrow="Accommodations"
         title="Sanctuaries of Quiet Coastal Rest"
@@ -61,7 +61,7 @@ function RoomsPage() {
       </section>
 
       {/* Main Room Showcase */}
-      <section className="relative py-20 lg:py-28">
+      <section className="relative bg-slate-950 py-20 lg:py-28 text-slate-100">
         <div className="mx-auto max-w-7xl space-y-24 px-5 sm:px-8">
           {rooms.map((room, i) => (
             <article
@@ -198,6 +198,6 @@ function RoomsPage() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }

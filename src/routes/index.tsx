@@ -52,7 +52,7 @@ function HomePage() {
   };
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden bg-slate-950 text-slate-100">
       {/* ═══ 1. CINEMATIC HERO SECTION ═══ */}
       <section className="relative isolate flex min-h-[95vh] items-center justify-center overflow-hidden pb-20 pt-32 sm:pb-28 sm:pt-40">
         {/* Background Image with parallax feeling */}
@@ -204,7 +204,7 @@ function HomePage() {
       </section>
 
       {/* ═══ 3. ROOMS & SUITES PREVIEW ═══ */}
-      <section className="relative py-24 sm:py-32">
+      <section className="relative bg-slate-950 py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="flex flex-col items-start justify-between gap-4 border-b border-white/10 pb-8 md:flex-row md:items-end">
             <div>
@@ -214,7 +214,7 @@ function HomePage() {
               <h2 className="mt-2 font-serif text-3xl font-semibold text-white sm:text-5xl">
                 Rooms & Suites
               </h2>
-              <p className="mt-2 text-sm text-slate-400 max-w-xl">
+              <p className="mt-2 text-sm text-slate-300 max-w-xl">
                 Each room is air-conditioned, sanitized daily, and appointed with premium teak furnishings, high-speed Wi-Fi, and 24-hour hot water.
               </p>
             </div>
@@ -366,7 +366,7 @@ function HomePage() {
       </section>
 
       {/* ═══ 5. FACILITIES & HOTEL PRIVILEGES (CONSOLIDATED) ═══ */}
-      <section className="relative py-24 sm:py-32">
+      <section className="relative bg-slate-950 py-24 sm:py-32 border-t border-white/10">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-amber-400">
@@ -375,7 +375,7 @@ function HomePage() {
             <h2 className="mt-2 font-serif text-3xl font-semibold text-white sm:text-5xl">
               Everything for a Seamless Stay
             </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-400">
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-300">
               From family weddings and student convocations to peaceful corporate retreats.
             </p>
           </div>
@@ -391,7 +391,7 @@ function HomePage() {
                     ✓
                   </div>
                   <h3 className="mt-4 font-serif text-lg font-semibold text-white">{fac.title}</h3>
-                  <p className="mt-2 text-xs leading-relaxed text-slate-400">{fac.note}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-slate-300">{fac.note}</p>
                 </div>
               </div>
             ))}
@@ -441,7 +441,7 @@ function HomePage() {
       </section>
 
       {/* ═══ 7. VERIFIED REVIEWS & SOCIAL PROOF ═══ */}
-      <section className="relative py-24 sm:py-32">
+      <section className="relative bg-slate-950 py-24 sm:py-32 border-t border-white/10">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-amber-400">
@@ -462,13 +462,13 @@ function HomePage() {
                   <div className="flex gap-1 text-amber-400 text-sm">
                     {"★".repeat(5)}
                   </div>
-                  <p className="mt-4 font-serif text-base italic leading-relaxed text-slate-200">
+                  <p className="mt-4 font-serif text-base italic leading-relaxed text-slate-100">
                     "{rev.quote}"
                   </p>
                 </div>
-                <div className="mt-6 border-t border-white/10 pt-4 flex items-center justify-between text-xs text-slate-400">
-                  <span className="font-medium text-white">{rev.name}</span>
-                  <span className="rounded-full bg-white/5 px-2.5 py-0.5">{rev.source}</span>
+                <div className="mt-6 border-t border-white/10 pt-4 flex items-center justify-between text-xs text-slate-300">
+                  <span className="font-semibold text-white">{rev.name}</span>
+                  <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-amber-300">{rev.source}</span>
                 </div>
               </div>
             ))}
