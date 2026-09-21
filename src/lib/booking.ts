@@ -103,18 +103,22 @@ export type ReceiptDetails = {
   guestPhone: string;
   guestEmail?: string | undefined;
   roomName: string;
+  roomsCount?: number | undefined;
   checkIn: string;
   checkOut: string;
   nights: number;
   adults: number;
   children: number;
   totalTariff: number;
+  extraBedsLabel?: string | undefined;
+  specialRequestsLabel?: string | undefined;
   paymentStatus?: string | undefined;
   advancePaid?: number | undefined;
   amenities?: string[] | undefined;
 };
 
 export function formatReceiptText(details: ReceiptDetails): string {
+  const roomsText = details.roomsCount && details.roomsCount > 1 ? `${details.roomsCount} Rooms (${details.roomName})` : details.roomName;
   const lines = [
     `🏨 *HOTEL RATNA FOREVER, NITTE*`,
     `*Booking Confirmation & Stay Receipt*`,
@@ -125,10 +129,12 @@ export function formatReceiptText(details: ReceiptDetails): string {
     ...(details.guestEmail ? [`✉️ *Email:* ${details.guestEmail}`] : []),
     ``,
     `🛏️ *Room Details:*`,
-    `• Category: ${details.roomName}`,
+    `• Accommodations: ${roomsText}`,
     `• Inclusions: Split AC, 24-hr Hot Water, Wi-Fi, Breakfast Included`,
+    ...(details.extraBedsLabel ? [`• Extra Bedding: ${details.extraBedsLabel}`] : []),
+    ...(details.specialRequestsLabel ? [`• Special Preferences: ${details.specialRequestsLabel}`] : []),
     ...(details.amenities && details.amenities.length > 0
-      ? [`• Amenities: ${details.amenities.join(", ")}`]
+      ? [`• Room Amenities: ${details.amenities.join(", ")}`]
       : []),
     ``,
     `📅 *Stay Schedule:*`,
@@ -137,10 +143,10 @@ export function formatReceiptText(details: ReceiptDetails): string {
     `• Duration: ${details.nights} ${details.nights === 1 ? "Night" : "Nights"}`,
     `• Occupancy: ${details.adults} ${details.adults === 1 ? "Adult" : "Adults"}${
       details.children > 0 ? `, ${details.children} Child` : ""
-    }`,
+    }${details.roomsCount && details.roomsCount > 1 ? ` across ${details.roomsCount} Rooms` : ""}`,
     ``,
     `💰 *Billing & Tariff Details:*`,
-    `• Estimated Tariff: INR ${details.totalTariff.toLocaleString("en-IN")}`,
+    `• Total Estimated Tariff: INR ${details.totalTariff.toLocaleString("en-IN")}`,
     `• Payment Status: ${details.paymentStatus ?? "Confirmed at Front Desk"}`,
     ...(details.advancePaid && details.advancePaid > 0
       ? [
@@ -162,11 +168,12 @@ export function formatReceiptText(details: ReceiptDetails): string {
 }
 
 export function formatSmsText(details: ReceiptDetails): string {
+  const roomsText = details.roomsCount && details.roomsCount > 1 ? `${details.roomsCount} x ${details.roomName}` : details.roomName;
   return `HOTEL RATNA FOREVER, NITTE
 Booking Confirmed!
 Ref: ${details.reference}
 Guest: ${details.guestName}
-Room: ${details.roomName}
+Room(s): ${roomsText}
 Check-in: ${details.checkIn} (12 PM)
 Check-out: ${details.checkOut} (11 AM)
 Nights: ${details.nights} | Total: INR ${details.totalTariff.toLocaleString("en-IN")}
