@@ -8,3 +8,8 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Commit Guidelines
+- Always make separate, granular commits for each logical change or file modified.
+- Avoid bundling multiple distinct features or fixes into a single commit.
+
