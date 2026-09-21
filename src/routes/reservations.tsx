@@ -86,6 +86,7 @@ function ReservationsPage() {
   const [checkOut, setCheckOut] = useState(() => safeAddDays(safeToday(), 1));
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
+  const [rooms, setRooms] = useState(1);
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [results, setResults] = useState<AvailabilityRow[] | null>(null);
@@ -96,7 +97,14 @@ function ReservationsPage() {
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
-  const [notes, setNotes] = useState("");
+  
+  // Structured Special Request & Extra Bed Dropdown State
+  const [extraBedOption, setExtraBedOption] = useState<"0" | "1" | "2" | "other">("0");
+  const [specialRequestOption, setSpecialRequestOption] = useState<
+    "none" | "early_checkin" | "quiet_room" | "ground_floor" | "campus_visit" | "other"
+  >("none");
+  const [customNotes, setCustomNotes] = useState("");
+
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<BookingResult | null>(null);
@@ -134,6 +142,56 @@ function ReservationsPage() {
     return Math.max(1, Math.round((tOut - tIn) / 86400000));
   }, [checkIn, checkOut]);
 
+  // Pricing calculations
+  const extraBedPricePerNight = useMemo(() => {
+    if (extraBedOption === "1") return 500;
+    if (extraBedOption === "2") return 1000;
+    return 0;
+  }, [extraBedOption]);
+
+  const extraBedTotal = useMemo(() => extraBedPricePerNight * nights, [extraBedPricePerNight, nights]);
+
+  const roomTariffTotal = useMemo(() => {
+    if (!selectedRoom) return 0;
+    return selectedRoom.price_per_night * nights * rooms;
+  }, [selectedRoom, nights, rooms]);
+
+  const totalTariffAmount = useMemo(() => {
+    return roomTariffTotal + extraBedTotal;
+  }, [roomTariffTotal, extraBedTotal]);
+
+  const extraBedsLabel = useMemo(() => {
+    if (extraBedOption === "1") return "1 Extra Rollaway Bed / Mattress (+₹500/night)";
+    if (extraBedOption === "2") return "2 Extra Rollaway Beds / Mattresses (+₹1,000/night)";
+    if (extraBedOption === "other") return "Custom Bedding Request";
+    return undefined;
+  }, [extraBedOption]);
+
+  const specialRequestsLabel = useMemo(() => {
+    const map: Record<string, string> = {
+      early_checkin: "Early Check-in Request",
+      quiet_room: "Quiet / Garden View Room",
+      ground_floor: "Ground Floor / Accessibility Access",
+      campus_visit: "Visiting Nitte University Campus",
+      other: "Custom Preference",
+    };
+    const pref = map[specialRequestOption];
+    if (pref && customNotes.trim()) return `${pref} (${customNotes.trim()})`;
+    if (pref) return pref;
+    if (customNotes.trim()) return customNotes.trim();
+    return undefined;
+  }, [specialRequestOption, customNotes]);
+
+  const compiledNotesForBooking = useMemo(() => {
+    const parts: string[] = [];
+    if (extraBedsLabel) parts.push(`Bedding: ${extraBedsLabel}`);
+    if (specialRequestsLabel) parts.push(`Request: ${specialRequestsLabel}`);
+    if (customNotes.trim() && !specialRequestsLabel?.includes(customNotes.trim())) {
+      parts.push(`Notes: ${customNotes.trim()}`);
+    }
+    return parts.join(" | ");
+  }, [extraBedsLabel, specialRequestsLabel, customNotes]);
+
   const formatPhoneForWhatsApp = (raw: string) => {
     const cleaned = raw.replace(/\D/g, "");
     if (cleaned.length === 10) return `91${cleaned}`;
@@ -168,12 +226,15 @@ function ReservationsPage() {
       guestPhone,
       guestEmail: guestEmail.trim() || undefined,
       roomName: selectedRoom.name,
+      roomsCount: rooms,
       checkIn: safePrettyDate(checkIn),
       checkOut: safePrettyDate(checkOut),
       nights,
       adults,
       children,
-      totalTariff: confirmation.estimated_total,
+      totalTariff: totalTariffAmount > 0 ? totalTariffAmount : confirmation.estimated_total,
+      extraBedsLabel,
+      specialRequestsLabel,
       paymentStatus: paymentSuccess ? "Advance Recorded via UPI" : "Confirmed at Front Desk",
       advancePaid: paymentSuccess ? payAmount : undefined,
       amenities: selectedRoomDetails?.tags,
@@ -181,6 +242,7 @@ function ReservationsPage() {
   }, [
     confirmation,
     selectedRoom,
+    rooms,
     guestName,
     guestPhone,
     guestEmail,
@@ -189,6 +251,9 @@ function ReservationsPage() {
     nights,
     adults,
     children,
+    totalTariffAmount,
+    extraBedsLabel,
+    specialRequestsLabel,
     paymentSuccess,
     payAmount,
     selectedRoomDetails,
@@ -202,12 +267,15 @@ function ReservationsPage() {
       guestPhone,
       guestEmail: guestEmail.trim() || undefined,
       roomName: selectedRoom.name,
+      roomsCount: rooms,
       checkIn: safePrettyDate(checkIn),
       checkOut: safePrettyDate(checkOut),
       nights,
       adults,
       children,
-      totalTariff: confirmation.estimated_total,
+      totalTariff: totalTariffAmount > 0 ? totalTariffAmount : confirmation.estimated_total,
+      extraBedsLabel,
+      specialRequestsLabel,
       paymentStatus: paymentSuccess ? "Advance Recorded via UPI" : "Confirmed at Front Desk",
       advancePaid: paymentSuccess ? payAmount : undefined,
       amenities: selectedRoomDetails?.tags,
@@ -215,6 +283,7 @@ function ReservationsPage() {
   }, [
     confirmation,
     selectedRoom,
+    rooms,
     guestName,
     guestPhone,
     guestEmail,
@@ -223,6 +292,9 @@ function ReservationsPage() {
     nights,
     adults,
     children,
+    totalTariffAmount,
+    extraBedsLabel,
+    specialRequestsLabel,
     paymentSuccess,
     payAmount,
     selectedRoomDetails,
@@ -340,12 +412,17 @@ function ReservationsPage() {
         guestEmail: guestEmail.trim() || undefined,
         adults,
         children,
-        rooms: 1,
-        notes: notes.trim() || undefined,
+        rooms,
+        notes: compiledNotesForBooking || undefined,
       });
 
-      setConfirmation(res);
-      setPayAmount(Math.min(res.estimated_total, 1000));
+      const finalTariff = totalTariffAmount > 0 ? totalTariffAmount : res.estimated_total;
+
+      setConfirmation({
+        ...res,
+        estimated_total: finalTariff,
+      });
+      setPayAmount(Math.min(finalTariff, 1000));
       setStep(4);
 
       // 1. Trigger automated SMS dispatch in background to guest phone
@@ -355,12 +432,15 @@ function ReservationsPage() {
         guestPhone: guestPhone.trim(),
         guestEmail: guestEmail.trim() || undefined,
         roomName: selectedRoom.name,
+        roomsCount: rooms,
         checkIn: safePrettyDate(checkIn),
         checkOut: safePrettyDate(checkOut),
         nights,
         adults,
         children,
-        totalTariff: res.estimated_total,
+        totalTariff: finalTariff,
+        extraBedsLabel,
+        specialRequestsLabel,
         paymentStatus: "Confirmed at Front Desk",
         amenities: selectedRoomDetails?.tags,
       })
@@ -383,12 +463,15 @@ function ReservationsPage() {
           guestPhone: guestPhone.trim(),
           guestEmail: guestEmail.trim(),
           roomName: selectedRoom.name,
+          roomsCount: rooms,
           checkIn: safePrettyDate(checkIn),
           checkOut: safePrettyDate(checkOut),
           nights,
           adults,
           children,
-          totalTariff: res.estimated_total,
+          totalTariff: finalTariff,
+          extraBedsLabel,
+          specialRequestsLabel,
           paymentStatus: "Confirmed at Front Desk",
           amenities: selectedRoomDetails?.tags,
         }).then((emailResult) => {
@@ -579,7 +662,7 @@ function ReservationsPage() {
                     </p>
                   </div>
 
-                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
                     <div>
                       <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
                         Check-in Date
@@ -612,10 +695,16 @@ function ReservationsPage() {
                       </label>
                       <select
                         value={adults}
-                        onChange={(e) => setAdults(Number(e.target.value))}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setAdults(val);
+                          if (val + children > rooms * 2 && rooms === 1) {
+                            setRooms(Math.min(5, Math.ceil((val + children) / 2)));
+                          }
+                        }}
                         className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                       >
-                        {[1, 2, 3, 4, 5, 6].map((n) => (
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                           <option key={n} value={n} className="bg-slate-900 text-white">
                             {n} {n === 1 ? "Adult" : "Adults"}
                           </option>
@@ -629,22 +718,51 @@ function ReservationsPage() {
                       </label>
                       <select
                         value={children}
-                        onChange={(e) => setChildren(Number(e.target.value))}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setChildren(val);
+                          if (adults + val > rooms * 2 && rooms === 1) {
+                            setRooms(Math.min(5, Math.ceil((adults + val) / 2)));
+                          }
+                        }}
                         className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                       >
-                        {[0, 1, 2, 3].map((n) => (
+                        {[0, 1, 2, 3, 4].map((n) => (
                           <option key={n} value={n} className="bg-slate-900 text-white">
                             {n} {n === 1 ? "Child" : "Children"}
                           </option>
                         ))}
                       </select>
                     </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
+                        Rooms Needed
+                      </label>
+                      <select
+                        value={rooms}
+                        onChange={(e) => setRooms(Number(e.target.value))}
+                        className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
+                      >
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <option key={n} value={n} className="bg-slate-900 text-white">
+                            {n} {n === 1 ? "Room" : "Rooms"}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
+
+                  {adults + children > 2 && (
+                    <div className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3.5 text-xs text-amber-200">
+                      💡 <strong>Capacity Advice for {adults + children} Guests:</strong> Standard Deluxe/Executive rooms accommodate 2 guests per room. You can reserve <strong>{rooms} {rooms === 1 ? "Room" : "Rooms"}</strong> or select our <strong>Family Suite</strong> (up to 4 guests) or add an <strong>Extra Bed / Mattress</strong> in Step 3.
+                    </div>
+                  )}
 
                   <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/[0.08] pt-6 sm:flex-row">
                     <div className="flex items-center gap-3 text-xs text-slate-300">
                       <span className="pill-tag">
-                        {nights} {nights === 1 ? "Night" : "Nights"}
+                        {nights} {nights === 1 ? "Night" : "Nights"} · {rooms} {rooms === 1 ? "Room" : "Rooms"}
                       </span>
                       <span className="text-slate-400">
                         {safePrettyDate(checkIn)} → {safePrettyDate(checkOut)}
@@ -691,7 +809,7 @@ function ReservationsPage() {
                     <div>
                       <h2 className="font-serif text-2xl font-semibold text-white">Available Accommodations</h2>
                       <p className="text-sm text-slate-400">
-                        {safePrettyDate(checkIn)} to {safePrettyDate(checkOut)} · {nights} {nights === 1 ? "night" : "nights"} · {adults + children} {adults + children === 1 ? "guest" : "guests"}
+                        {safePrettyDate(checkIn)} to {safePrettyDate(checkOut)} · {nights} {nights === 1 ? "night" : "nights"} · {rooms} {rooms === 1 ? "room" : "rooms"} · {adults + children} {adults + children === 1 ? "guest" : "guests"}
                       </p>
                     </div>
                     <button
@@ -699,7 +817,7 @@ function ReservationsPage() {
                       onClick={() => setStep(1)}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:bg-white/10"
                     >
-                      ← Modify Dates
+                      ← Modify Dates & Rooms
                     </button>
                   </div>
 
@@ -708,8 +826,9 @@ function ReservationsPage() {
                       {results.map((room) => {
                         const isSelected = selectedRoom?.room_type_id === room.room_type_id;
                         const availableUnits = room.units_available ?? 0;
-                        const isAvailable = availableUnits > 0;
-                        const estimatedTotal = room.price_per_night * nights;
+                        const isAvailable = availableUnits >= rooms;
+                        const roomCapacityTotal = (room.capacity ?? 2) * rooms;
+                        const estimatedTotal = room.price_per_night * nights * rooms;
 
                         return (
                           <div
@@ -727,11 +846,11 @@ function ReservationsPage() {
                               <div className="absolute top-3 right-3">
                                 {isAvailable ? (
                                   <span className="rounded-full bg-emerald-500/80 px-3 py-0.5 text-[11px] font-medium text-white shadow backdrop-blur-md">
-                                    {availableUnits} Units Left
+                                    {availableUnits} Units Available
                                   </span>
                                 ) : (
                                   <span className="rounded-full bg-rose-600/80 px-3 py-0.5 text-[11px] font-medium text-white shadow backdrop-blur-md">
-                                    Sold Out
+                                    Need {rooms} Units ({availableUnits} Left)
                                   </span>
                                 )}
                               </div>
@@ -740,7 +859,9 @@ function ReservationsPage() {
                             <div className="flex flex-1 flex-col p-5">
                               <div className="flex-1">
                                 <h3 className="font-serif text-lg font-medium text-white">{room.name}</h3>
-                                <p className="mt-1 text-xs text-amber-300/80">Max {room.capacity ?? 2} guests</p>
+                                <p className="mt-1 text-xs text-amber-300/80">
+                                  Max {roomCapacityTotal} guests ({rooms} {rooms === 1 ? "room" : "rooms"} × {room.capacity ?? 2} per room)
+                                </p>
                                 <p className="mt-2.5 text-xs leading-relaxed text-slate-300 line-clamp-2">
                                   Air-conditioned quiet rest with 24-hr hot water, tea tray, and complimentary breakfast.
                                 </p>
@@ -752,10 +873,12 @@ function ReservationsPage() {
                                     <span className="font-serif text-xl font-semibold text-amber-400">
                                       {formatCurrency(room.price_per_night)}
                                     </span>
-                                    <span className="text-xs text-slate-400"> / night</span>
+                                    <span className="text-xs text-slate-400"> / night / room</span>
                                   </div>
                                   <div className="text-right">
-                                    <p className="text-[11px] text-slate-400">Total ({nights} nts)</p>
+                                    <p className="text-[11px] text-slate-400">
+                                      Total ({nights} nts × {rooms} {rooms === 1 ? "room" : "rooms"})
+                                    </p>
                                     <p className="text-xs font-semibold text-white">{formatCurrency(estimatedTotal)}</p>
                                   </div>
                                 </div>
@@ -881,15 +1004,55 @@ function ReservationsPage() {
                         </span>
                       </div>
 
+                      <div>
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
+                          Extra Bed / Mattress Requirement
+                        </label>
+                        <select
+                          value={extraBedOption}
+                          onChange={(e) => setExtraBedOption(e.target.value as any)}
+                          className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
+                        >
+                          <option value="0" className="bg-slate-900 text-white">No Extra Bed (Standard Bedding)</option>
+                          <option value="1" className="bg-slate-900 text-white">1 Extra Rollaway Bed / Mattress (+₹500 / night)</option>
+                          <option value="2" className="bg-slate-900 text-white">2 Extra Beds / Mattresses (+₹1,000 / night)</option>
+                          <option value="other" className="bg-slate-900 text-white">Other Bedding Request...</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
+                          Special Request / Stay Preference
+                        </label>
+                        <select
+                          value={specialRequestOption}
+                          onChange={(e) => setSpecialRequestOption(e.target.value as any)}
+                          className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
+                        >
+                          <option value="none" className="bg-slate-900 text-white">Standard Stay (No Special Preference)</option>
+                          <option value="early_checkin" className="bg-slate-900 text-white">Early Check-in Request</option>
+                          <option value="quiet_room" className="bg-slate-900 text-white">Quiet / Garden View Room</option>
+                          <option value="ground_floor" className="bg-slate-900 text-white">Ground Floor / Accessibility Access</option>
+                          <option value="campus_visit" className="bg-slate-900 text-white">Visiting Nitte University Campus</option>
+                          <option value="other" className="bg-slate-900 text-white">Other Special Request...</option>
+                        </select>
+                      </div>
+
                       <div className="sm:col-span-2">
                         <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
-                          Special Requests / Estimated Arrival Time
+                          {extraBedOption === "other" || specialRequestOption === "other"
+                            ? "Other Details & Specific Requirements *"
+                            : "Additional Notes / Arrival Time (Optional)"}
                         </label>
                         <textarea
                           rows={2}
-                          value={notes}
-                          onChange={(e) => setNotes(e.target.value)}
-                          placeholder="Early check-in request, extra bed, dietary notes, or campus visit info..."
+                          value={customNotes}
+                          onChange={(e) => setCustomNotes(e.target.value)}
+                          placeholder={
+                            extraBedOption === "other" || specialRequestOption === "other"
+                              ? "Please describe your custom bedding, extra guest, or stay requirement details..."
+                              : "Estimated arrival time, dietary requests, or campus visit details..."
+                          }
                           className="mt-2 w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                         />
                       </div>
@@ -936,16 +1099,29 @@ function ReservationsPage() {
                     {/* Booking Summary Box */}
                     <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 sm:p-6">
                       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                        <div>
-                          <p className="text-xs uppercase tracking-wider text-amber-300 font-semibold">Stay Summary</p>
-                          <p className="mt-1 text-sm text-slate-300">
-                            {selectedRoom.name} · {nights} {nights === 1 ? "Night" : "Nights"} · {adults + children} {adults + children === 1 ? "Guest" : "Guests"}
+                        <div className="space-y-1">
+                          <p className="text-xs uppercase tracking-wider text-amber-300 font-semibold">Stay Summary & Billing</p>
+                          <p className="text-sm text-slate-300">
+                            {selectedRoom.name} ({rooms} {rooms === 1 ? "Room" : "Rooms"}) · {nights} {nights === 1 ? "Night" : "Nights"} · {adults + children} {adults + children === 1 ? "Guest" : "Guests"}
                           </p>
+                          {extraBedTotal > 0 && (
+                            <p className="text-xs text-emerald-400 font-medium">
+                              + {extraBedsLabel} ({formatCurrency(extraBedTotal)})
+                            </p>
+                          )}
+                          {specialRequestsLabel && (
+                            <p className="text-xs text-amber-300/80">
+                              Preference: {specialRequestsLabel}
+                            </p>
+                          )}
                         </div>
                         <div className="text-right sm:border-l sm:border-amber-400/20 sm:pl-6">
                           <p className="text-xs text-slate-400">Total Estimated Tariff</p>
                           <p className="font-serif text-2xl font-bold text-amber-400">
-                            {formatCurrency(selectedRoom.price_per_night * nights)}
+                            {formatCurrency(totalTariffAmount)}
+                          </p>
+                          <p className="text-[11px] text-slate-400">
+                            ({formatCurrency(selectedRoom.price_per_night)} × {nights} nts × {rooms} {rooms === 1 ? "rm" : "rms"}{extraBedTotal > 0 ? ` + ${formatCurrency(extraBedTotal)} extra bed` : ""})
                           </p>
                         </div>
                       </div>
@@ -1215,9 +1391,9 @@ function ReservationsPage() {
                           </span>
                         </div>
                         <div>
-                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Special Notes</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Special Notes & Preferences</span>
                           <span className="mt-1 block text-xs text-slate-300 line-clamp-2">
-                            {notes.trim() || "None"}
+                            {compiledNotesForBooking || "None"}
                           </span>
                         </div>
                       </div>
