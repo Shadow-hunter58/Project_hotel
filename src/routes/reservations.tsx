@@ -8,6 +8,7 @@ import {
   fetchAvailability,
   lookupBooking,
   recordPayment,
+  updateLocalBookingTotal,
   formatReceiptText,
   formatSmsText,
   nightsBetween,
@@ -198,9 +199,27 @@ function ReservationsPage() {
     return cleaned;
   };
 
+  const fallbackCopyText = (text: string) => {
+    if (typeof document === "undefined") return false;
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const success = document.execCommand("copy");
+      textArea.remove();
+      return success;
+    } catch {
+      return false;
+    }
+  };
+
   const handleCopyReceipt = (text: string, isManage = false) => {
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(text);
+    const notifyCopied = () => {
       if (isManage) {
         setManageCopiedReceipt(true);
         setTimeout(() => setManageCopiedReceipt(false), 2500);
@@ -208,6 +227,14 @@ function ReservationsPage() {
         setCopiedReceipt(true);
         setTimeout(() => setCopiedReceipt(false), 2500);
       }
+    };
+
+    if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(notifyCopied).catch(() => {
+        if (fallbackCopyText(text)) notifyCopied();
+      });
+    } else {
+      if (fallbackCopyText(text)) notifyCopied();
     }
   };
 
@@ -373,7 +400,7 @@ function ReservationsPage() {
       setResults(rows);
       setStep(2);
     } catch (err) {
-      setSearchError(err instanceof Error ? err.message : "Unable to retrieve real-time availability. Please check dates or call our front desk.");
+      setSearchError("Unable to retrieve real-time availability. Please check dates or call our front desk at +91 73380 88744.");
     } finally {
       setLoading(false);
     }
@@ -399,6 +426,12 @@ function ReservationsPage() {
       return;
     }
 
+    const cleanDigits = guestPhone.replace(/\D/g, "");
+    if (cleanDigits.length < 10) {
+      setFormError("Please enter a valid 10-digit mobile number for booking confirmation.");
+      return;
+    }
+
     setSubmitting(true);
     setFormError(null);
 
@@ -417,6 +450,7 @@ function ReservationsPage() {
       });
 
       const finalTariff = totalTariffAmount > 0 ? totalTariffAmount : res.estimated_total;
+      updateLocalBookingTotal(res.reference, finalTariff);
 
       setConfirmation({
         ...res,
@@ -481,7 +515,7 @@ function ReservationsPage() {
         }).catch(() => {});
       }
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Booking could not be confirmed. Please call front desk.");
+      setFormError("Booking could not be confirmed automatically. Please call our front desk at +91 73380 88744.");
     } finally {
       setSubmitting(false);
     }
@@ -502,7 +536,7 @@ function ReservationsPage() {
       await recordPayment(confirmation.reference, guestPhone.trim(), utrNumber.trim());
       setPaymentSuccess(true);
     } catch (err) {
-      setPaymentError(err instanceof Error ? err.message : "Could not record payment details. Front desk will verify upon arrival.");
+      setPaymentError("Could not record payment details. Front desk will verify upon arrival.");
     } finally {
       setSubmittingPayment(false);
     }
@@ -524,9 +558,11 @@ function ReservationsPage() {
       setLookupBookingData(data);
       if (data) {
         setManagePayAmount(Math.min(data.estimated_total, 1000));
+      } else {
+        setLookupError("No reservation found matching those details. Please call our front desk at +91 73380 88744.");
       }
     } catch (err) {
-      setLookupError(err instanceof Error ? err.message : "No reservation found matching those details.");
+      setLookupError("Unable to look up reservation. Please call our front desk at +91 73380 88744.");
     } finally {
       setLookupLoading(false);
     }
@@ -545,7 +581,7 @@ function ReservationsPage() {
       await recordPayment(lookupBookingData.reference, lookupPhone.trim(), manageUtr.trim());
       setManagePaySuccess(true);
     } catch (err) {
-      setManagePayError(err instanceof Error ? err.message : "Failed to record payment.");
+      setManagePayError("Failed to record payment automatically. Please present your reference at front desk.");
     } finally {
       setManageSubmittingPay(false);
     }
@@ -1474,7 +1510,7 @@ function ReservationsPage() {
                             {adults} {adults === 1 ? "Adult" : "Adults"}
                             {children > 0 ? `, ${children} Child` : ""}
                           </span>
-                          <span className="text-[10px] text-slate-400">1 Room</span>
+                          <span className="text-[10px] text-slate-400">{rooms} {rooms === 1 ? "Room" : "Rooms"}</span>
                         </div>
                       </div>
 
@@ -1487,12 +1523,22 @@ function ReservationsPage() {
                         <div className="space-y-2 text-xs">
                           <div className="flex justify-between text-slate-300">
                             <span>
-                              {selectedRoom.name} Room Tariff ({nights} {nights === 1 ? "night" : "nights"} × {formatCurrency(selectedRoom.price_per_night)})
+                              {selectedRoom.name} Room Tariff ({nights} {nights === 1 ? "night" : "nights"} × {formatCurrency(selectedRoom.price_per_night)}{rooms > 1 ? ` × ${rooms} rooms` : ""})
                             </span>
                             <span className="font-medium text-white">
-                              {formatCurrency(selectedRoom.price_per_night * nights)}
+                              {formatCurrency(roomTariffTotal)}
                             </span>
                           </div>
+                          {extraBedTotal > 0 && (
+                            <div className="flex justify-between text-slate-300">
+                              <span>
+                                {extraBedsLabel} ({nights} {nights === 1 ? "night" : "nights"} × {formatCurrency(extraBedPricePerNight)})
+                              </span>
+                              <span className="font-medium text-white">
+                                {formatCurrency(extraBedTotal)}
+                              </span>
+                            </div>
+                          )}
                           <div className="flex justify-between text-slate-300">
                             <span>Complimentary Coastal Breakfast (Daily 7:30 – 10:30 AM)</span>
                             <span className="text-emerald-400 font-medium">Included (₹0)</span>
@@ -1504,7 +1550,7 @@ function ReservationsPage() {
                           <div className="border-t border-white/[0.08] pt-2 flex justify-between text-sm">
                             <span className="font-medium text-white">Total Estimated Tariff</span>
                             <span className="font-serif text-lg font-medium text-amber-300">
-                              {formatCurrency(confirmation.estimated_total)}
+                              {formatCurrency(totalTariffAmount > 0 ? totalTariffAmount : confirmation.estimated_total)}
                             </span>
                           </div>
                           <div className="flex justify-between text-slate-300 pt-1">
@@ -1517,8 +1563,8 @@ function ReservationsPage() {
                             <span className="font-semibold text-white">Balance Due at Check-in:</span>
                             <span className="font-serif text-base font-semibold text-amber-300">
                               {paymentSuccess
-                                ? formatCurrency(Math.max(0, confirmation.estimated_total - payAmount))
-                                : formatCurrency(confirmation.estimated_total)}
+                                ? formatCurrency(Math.max(0, (totalTariffAmount > 0 ? totalTariffAmount : confirmation.estimated_total) - payAmount))
+                                : formatCurrency(totalTariffAmount > 0 ? totalTariffAmount : confirmation.estimated_total)}
                             </span>
                           </div>
                         </div>
