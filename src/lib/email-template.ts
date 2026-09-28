@@ -171,43 +171,69 @@ export async function sendAutomatedBookingEmail(details: ReceiptDetails): Promis
     return { sent: false, message: "No guest email provided" };
   }
 
-  // Check for Resend API key
-  const apiKey = typeof process !== "undefined" && process.env ? process.env["RESEND_API_KEY"] : undefined;
-
-  if (!apiKey) {
-    // Graceful fallback - API key not set yet
-    return {
-      sent: false,
-      message: "Resend API key not configured yet. 1-tap client email link is active.",
-    };
-  }
-
+  // 1. Try server-side email dispatch endpoint first
   try {
-    const html = generateBookingEmailHtml(details);
-    const res = await fetch("https://api.resend.com/emails", {
+    const res = await fetch("/api/send-email", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "Hotel Ratna Forever <reservations@hotelratnaforever.com>",
-        to: [details.guestEmail],
-        subject: `Your Booking Confirmation & Stay Receipt [${details.reference}] - Hotel Ratna Forever`,
-        html,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(details),
     });
 
     if (res.ok) {
-      return { sent: true, message: `Automated confirmation email sent to ${details.guestEmail}` };
-    } else {
-      const errData = await res.json().catch(() => ({}));
-      return { sent: false, message: `Email gateway response: ${JSON.stringify(errData)}` };
+      const data = (await res.json().catch(() => ({}))) as {
+        success?: boolean;
+        message?: string;
+      };
+      if (data.success) {
+        return {
+          sent: true,
+          message: data.message ?? `Automated confirmation email sent to ${details.guestEmail}`,
+        };
+      }
+      if (data.message) {
+        return { sent: false, message: data.message };
+      }
     }
-  } catch (err) {
-    return {
-      sent: false,
-      message: err instanceof Error ? err.message : "Failed to dispatch automated email",
-    };
+  } catch {
+    // Network or static deployment fallback
   }
+
+  // 2. Direct server-side Resend API call if running in Node server environment
+  const apiKey =
+    typeof process !== "undefined" && process.env
+      ? process.env["RESEND_API_KEY"]
+      : undefined;
+
+  if (typeof window === "undefined" && apiKey) {
+    try {
+      const html = generateBookingEmailHtml(details);
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "Hotel Ratna Forever <reservations@hotelratnaforever.com>",
+          to: [details.guestEmail],
+          subject: `Your Booking Confirmation & Stay Receipt [${details.reference}] - Hotel Ratna Forever`,
+          html,
+        }),
+      });
+
+      if (res.ok) {
+        return { sent: true, message: `Automated confirmation email sent to ${details.guestEmail}` };
+      }
+    } catch (err) {
+      return {
+        sent: false,
+        message: err instanceof Error ? err.message : "Failed to dispatch automated email",
+      };
+    }
+  }
+
+  return {
+    sent: false,
+    message: "Email dispatch server not configured. Mailto link ready for 1-tap client send.",
+  };
 }
