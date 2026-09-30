@@ -7,7 +7,7 @@ import realHall from "@/assets/real-hall.jpg";
 import realMeeting from "@/assets/real-meeting.jpg";
 import realSuiteDining from "@/assets/real-suite-dining.jpg";
 import realEventStage from "@/assets/real-event-stage.jpg";
-import realLoungeAsset from "@/assets/ratna-lounge.webp.asset.json";
+import realLounge from "@/assets/real-lounge.jpg";
 
 export const PHONE = "+917338088744";
 export const PHONE_DISPLAY = "+91 73380 88744";
@@ -23,7 +23,48 @@ export const nav = [
   { label: "Contact", to: "/contact" },
 ] as const;
 
-export const rooms = [
+/** AC/Non-AC pricing for each room type */
+export type AcVariant = {
+  label: string;
+  pricePerNight: number;
+  priceDisplay: string;
+};
+
+export type RoomType = {
+  name: string;
+  beds: string;
+  price: string;
+  amount: number;
+  blurb: string;
+  tags: string[];
+  image: string;
+  acVariants: AcVariant[];
+};
+
+/** Service Room combo options */
+export type ServiceRoomOption = {
+  id: "service_only" | "service_with_deluxe";
+  label: string;
+  description: string;
+  priceAddon: number;
+};
+
+export const serviceRoomOptions: ServiceRoomOption[] = [
+  {
+    id: "service_only",
+    label: "Service Room Only",
+    description: "Standard service room for a comfortable and affordable stay.",
+    priceAddon: 0,
+  },
+  {
+    id: "service_with_deluxe",
+    label: "Service Room + Deluxe Room",
+    description: "Get a service room combined with a deluxe room for extra space and comfort.",
+    priceAddon: 1899, // placeholder — update with actual addon price
+  },
+];
+
+export const rooms: RoomType[] = [
   {
     name: "Deluxe Room",
     beds: "1 king or 2 twin beds · 2 guests",
@@ -31,8 +72,26 @@ export const rooms = [
     amount: 1899,
     blurb:
       "Warm teak interiors, blackout curtains, kettle with tea tray and 24-hour hot water. The dependable choice for a one or two night stay.",
-    tags: ["Air-conditioned", "Kettle & tea tray", "Free Wi-Fi"],
+    tags: ["Kettle & tea tray", "Free Wi-Fi", "24-hr hot water"],
     image: roomDeluxe,
+    acVariants: [
+      { label: "AC", pricePerNight: 1899, priceDisplay: "₹1,899" },
+      { label: "Non-AC", pricePerNight: 1499, priceDisplay: "₹1,499" },
+    ],
+  },
+  {
+    name: "Service Room",
+    beds: "1 bed · 2 guests",
+    price: "₹999",
+    amount: 999,
+    blurb:
+      "A clean and practical room ideal for short stays, transit guests, or budget-conscious travellers. Available standalone or bundled with a Deluxe Room.",
+    tags: ["Budget-friendly", "24-hr hot water", "Free Wi-Fi"],
+    image: realBedroom,
+    acVariants: [
+      { label: "AC", pricePerNight: 999, priceDisplay: "₹999" },
+      { label: "Non-AC", pricePerNight: 699, priceDisplay: "₹699" },
+    ],
   },
   {
     name: "Executive Room",
@@ -43,16 +102,10 @@ export const rooms = [
       "A little more floor space, a proper work desk and a quiet garden-facing aspect — built for visiting faculty and business guests.",
     tags: ["Garden view", "Work desk", "Daily housekeeping"],
     image: realExecutiveRoom,
-  },
-  {
-    name: "Family Suite",
-    beds: "2 rooms · up to 4 guests",
-    price: "₹3,699",
-    amount: 3699,
-    blurb:
-      "Two connected rooms with a shared sitting area — the pick for parents visiting Nitte campuses or wedding-season families.",
-    tags: ["Extra bed available", "Room service", "Laundry service"],
-    image: realSuiteLiving,
+    acVariants: [
+      { label: "AC", pricePerNight: 2499, priceDisplay: "₹2,499" },
+      { label: "Non-AC", pricePerNight: 1999, priceDisplay: "₹1,999" },
+    ],
   },
 ];
 
@@ -115,7 +168,7 @@ export const gallery = [
     alt: "Daytime view of the Hotel Ratna Forever building with its blue glass facade and forecourt parking",
   },
   {
-    src: realLoungeAsset.url,
+    src: realLounge,
     title: "Lobby lounge",
     note: "Cushioned seating, aquarium and reception desk, staffed round the clock",
     alt: "Hotel Ratna Forever lobby lounge with cream sofas, a magazine table, carved teak daybed, aquarium and reception desk",
