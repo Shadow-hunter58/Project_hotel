@@ -14,9 +14,7 @@ export type SmsDispatchResult = {
  * Twilio, or custom SMS gateway without exposing keys to client).
  * Falls back to direct client-side credentials if present.
  */
-export async function sendAutomatedBookingSms(
-  details: ReceiptDetails,
-): Promise<SmsDispatchResult> {
+export async function sendAutomatedBookingSms(details: ReceiptDetails): Promise<SmsDispatchResult> {
   const phone = details.guestPhone?.trim();
   if (!phone) {
     return {
@@ -110,6 +108,7 @@ export async function sendAutomatedBookingSms(
   return {
     sent: false,
     provider: "none",
-    message: "SMS Gateway API key not configured in .env (FAST2SMS_API_KEY / TWILIO). Use 1-tap SMS launcher below.",
+    message:
+      "SMS Gateway API key not configured in .env (FAST2SMS_API_KEY / TWILIO). Use 1-tap SMS launcher below.",
   };
 }

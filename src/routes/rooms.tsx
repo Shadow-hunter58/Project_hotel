@@ -77,8 +77,12 @@ function RoomsPage() {
             <span className="text-slate-500">· Best Available Rates & Zero Intermediary Fees</span>
           </div>
           <div className="flex items-center gap-6">
-            <span>Check-in: <strong className="text-slate-200 font-medium">12:00 PM</strong></span>
-            <span>Check-out: <strong className="text-slate-200 font-medium">11:00 AM</strong></span>
+            <span>
+              Check-in: <strong className="text-slate-200 font-medium">12:00 PM</strong>
+            </span>
+            <span>
+              Check-out: <strong className="text-slate-200 font-medium">11:00 AM</strong>
+            </span>
           </div>
         </div>
       </section>
@@ -121,9 +125,7 @@ function RoomsPage() {
                     </h2>
                   </div>
 
-                  <p className="text-sm leading-relaxed text-slate-300">
-                    {room.blurb}
-                  </p>
+                  <p className="text-sm leading-relaxed text-slate-300">{room.blurb}</p>
 
                   <div className="space-y-2.5 pt-1">
                     <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
@@ -131,10 +133,7 @@ function RoomsPage() {
                     </span>
                     <ul className="flex flex-wrap gap-2">
                       {room.tags.map((tag) => (
-                        <li
-                          key={tag}
-                          className="pill-tag"
-                        >
+                        <li key={tag} className="pill-tag">
                           <span className="text-amber-400 text-xs">✓</span>
                           <span>{tag}</span>
                         </li>
@@ -164,7 +163,9 @@ function RoomsPage() {
                         ))}
                       </div>
                       <div className="mt-2 flex items-center gap-2">
-                        <span className="text-xs text-emerald-400 font-medium">Free Breakfast Included</span>
+                        <span className="text-xs text-emerald-400 font-medium">
+                          Free Breakfast Included
+                        </span>
                         {room.name.toLowerCase().includes("service") && (
                           <span className="rounded-full bg-amber-400/10 border border-amber-400/30 px-2.5 py-0.5 text-[10px] font-medium text-amber-300">
                             Combo with Deluxe available
@@ -206,16 +207,14 @@ function RoomsPage() {
               Thoughtfully Appointed for Rest & Work
             </h3>
             <p className="mt-2 text-sm text-slate-400">
-              Every stay includes full access to front-desk assistance, breakfast dining, and secure highway parking.
+              Every stay includes full access to front-desk assistance, breakfast dining, and secure
+              highway parking.
             </p>
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {hotelPrivileges.map((item) => (
-              <div
-                key={item.title}
-                className="editorial-card rounded-xl p-5 space-y-1.5"
-              >
+              <div key={item.title} className="editorial-card rounded-xl p-5 space-y-1.5">
                 <h4 className="text-sm font-semibold text-white">{item.title}</h4>
                 <p className="text-xs text-slate-400 leading-relaxed">{item.desc}</p>
               </div>

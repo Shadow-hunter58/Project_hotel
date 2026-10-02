@@ -61,7 +61,10 @@ export const DEFAULT_ROOM_AVAILABILITY: AvailabilityRow[] = [
   },
 ];
 
-export async function fetchAvailability(checkIn: string, checkOut: string): Promise<AvailabilityRow[]> {
+export async function fetchAvailability(
+  checkIn: string,
+  checkOut: string,
+): Promise<AvailabilityRow[]> {
   try {
     const { data, error } = await supabase.rpc("get_availability", {
       _check_in: checkIn,
@@ -71,7 +74,10 @@ export async function fetchAvailability(checkIn: string, checkOut: string): Prom
       return data as AvailabilityRow[];
     }
     if (error) {
-      console.warn("[Supabase] Availability check failed, using catalog inventory:", error.message || error);
+      console.warn(
+        "[Supabase] Availability check failed, using catalog inventory:",
+        error.message || error,
+      );
     }
   } catch (err) {
     console.warn("[Supabase] Availability check unreachable, using catalog inventory:", err);
@@ -198,10 +204,16 @@ export async function createBooking(input: {
         return row;
       }
     } else {
-      console.warn("[Supabase] create_booking failed, generating confirmed voucher locally:", error.message || error);
+      console.warn(
+        "[Supabase] create_booking failed, generating confirmed voucher locally:",
+        error.message || error,
+      );
     }
   } catch (err) {
-    console.warn("[Supabase] create_booking unreachable, generating confirmed voucher locally:", err);
+    console.warn(
+      "[Supabase] create_booking unreachable, generating confirmed voucher locally:",
+      err,
+    );
   }
 
   // Graceful fallback for offline / database-down scenarios:
@@ -235,7 +247,10 @@ export async function createBooking(input: {
   return localResult;
 }
 
-export async function lookupBooking(reference: string, phone: string): Promise<BookingLookup | null> {
+export async function lookupBooking(
+  reference: string,
+  phone: string,
+): Promise<BookingLookup | null> {
   const normRef = reference.trim().toUpperCase();
   try {
     const { data, error } = await supabase.rpc("lookup_booking", {
@@ -306,7 +321,10 @@ export type ReceiptDetails = {
 };
 
 export function formatReceiptText(details: ReceiptDetails): string {
-  const roomsText = details.roomsCount && details.roomsCount > 1 ? `${details.roomsCount} Rooms (${details.roomName})` : details.roomName;
+  const roomsText =
+    details.roomsCount && details.roomsCount > 1
+      ? `${details.roomsCount} Rooms (${details.roomName})`
+      : details.roomName;
   const lines = [
     `🏨 *HOTEL RATNA FOREVER, NITTE*`,
     `*Booking Confirmation & Stay Receipt*`,
@@ -320,7 +338,9 @@ export function formatReceiptText(details: ReceiptDetails): string {
     `• Accommodations: ${roomsText}`,
     `• Inclusions: Split AC, 24-hr Hot Water, Wi-Fi, Breakfast Included`,
     ...(details.extraBedsLabel ? [`• Extra Bedding: ${details.extraBedsLabel}`] : []),
-    ...(details.specialRequestsLabel ? [`• Special Preferences: ${details.specialRequestsLabel}`] : []),
+    ...(details.specialRequestsLabel
+      ? [`• Special Preferences: ${details.specialRequestsLabel}`]
+      : []),
     ...(details.amenities && details.amenities.length > 0
       ? [`• Room Amenities: ${details.amenities.join(", ")}`]
       : []),
@@ -356,7 +376,10 @@ export function formatReceiptText(details: ReceiptDetails): string {
 }
 
 export function formatSmsText(details: ReceiptDetails): string {
-  const roomsText = details.roomsCount && details.roomsCount > 1 ? `${details.roomsCount} x ${details.roomName}` : details.roomName;
+  const roomsText =
+    details.roomsCount && details.roomsCount > 1
+      ? `${details.roomsCount} x ${details.roomName}`
+      : details.roomName;
   return `HOTEL RATNA FOREVER, NITTE
 Booking Confirmed!
 Ref: ${details.reference}
@@ -369,5 +392,3 @@ Status: ${details.paymentStatus ?? "Confirmed at Front Desk"}
 Address: Main Rd, Nitte, Karkala Taluk
 Front Desk: +91 73380 88744`;
 }
-
-

@@ -55,10 +55,10 @@ async function handleSmsApi(request: Request, env: unknown): Promise<Response> {
     const phone = body.phone?.trim();
     const message = body.message?.trim();
     if (!phone || !message) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Missing phone or message" }),
-        { status: 400, headers: { "content-type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ success: false, message: "Missing phone or message" }), {
+        status: 400,
+        headers: { "content-type": "application/json" },
+      });
     }
 
     const envMap = (env as Record<string, string> | undefined) ?? {};
@@ -67,13 +67,19 @@ async function handleSmsApi(request: Request, env: unknown): Promise<Response> {
       (typeof process !== "undefined" && process.env ? process.env["FAST2SMS_API_KEY"] : undefined);
     const twilioSid =
       envMap["TWILIO_ACCOUNT_SID"] ||
-      (typeof process !== "undefined" && process.env ? process.env["TWILIO_ACCOUNT_SID"] : undefined);
+      (typeof process !== "undefined" && process.env
+        ? process.env["TWILIO_ACCOUNT_SID"]
+        : undefined);
     const twilioToken =
       envMap["TWILIO_AUTH_TOKEN"] ||
-      (typeof process !== "undefined" && process.env ? process.env["TWILIO_AUTH_TOKEN"] : undefined);
+      (typeof process !== "undefined" && process.env
+        ? process.env["TWILIO_AUTH_TOKEN"]
+        : undefined);
     const twilioFrom =
       envMap["TWILIO_PHONE_NUMBER"] ||
-      (typeof process !== "undefined" && process.env ? process.env["TWILIO_PHONE_NUMBER"] : undefined);
+      (typeof process !== "undefined" && process.env
+        ? process.env["TWILIO_PHONE_NUMBER"]
+        : undefined);
     const gatewayUrl =
       envMap["SMS_GATEWAY_URL"] ||
       (typeof process !== "undefined" && process.env ? process.env["SMS_GATEWAY_URL"] : undefined);
@@ -110,7 +116,9 @@ async function handleSmsApi(request: Request, env: unknown): Promise<Response> {
         JSON.stringify({
           success: false,
           provider: "Fast2SMS",
-          message: Array.isArray(data.message) ? data.message.join(", ") : "Fast2SMS gateway rejected request",
+          message: Array.isArray(data.message)
+            ? data.message.join(", ")
+            : "Fast2SMS gateway rejected request",
         }),
         { headers: { "content-type": "application/json" } },
       );
@@ -161,11 +169,20 @@ async function handleSmsApi(request: Request, env: unknown): Promise<Response> {
       const res = await fetch(gatewayUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, message, reference: body.reference, guestName: body.guestName }),
+        body: JSON.stringify({
+          phone,
+          message,
+          reference: body.reference,
+          guestName: body.guestName,
+        }),
       });
       if (res.ok) {
         return new Response(
-          JSON.stringify({ success: true, provider: "Custom Gateway", message: "SMS dispatched via gateway" }),
+          JSON.stringify({
+            success: true,
+            provider: "Custom Gateway",
+            message: "SMS dispatched via gateway",
+          }),
           { headers: { "content-type": "application/json" } },
         );
       }
@@ -291,4 +308,3 @@ export default {
     }
   },
 };
-

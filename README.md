@@ -1,20 +1,20 @@
 # 🏨 Hotel Ratna Forever, Nitte
 
 > **Official Website & Direct Reservation Engine for Hotel Ratna Forever**  
-> *Premier hospitality, authentic coastal Mangalorean dining, and event banquets in Nitte, Karkala Taluk, Karnataka.*
+> _Premier hospitality, authentic coastal Mangalorean dining, and event banquets in Nitte, Karkala Taluk, Karnataka._
 
 [![Status](https://img.shields.io/badge/Status-Live%20%26%20Production%20Ready-emerald.svg)](#)
-[![Rating](https://img.shields.io/badge/Google%20Rating-4.1%20★%20(2%2C499%2B%20Reviews)-amber.svg)](#)
+[![Rating](<https://img.shields.io/badge/Google%20Rating-4.1%20★%20(2%2C499%2B%20Reviews)-amber.svg>)](#)
 [![Framework](https://img.shields.io/badge/Framework-TanStack%20Start%20%2F%20React-blue.svg)](#)
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178c6.svg)](#)
-[![Database](https://img.shields.io/badge/Database-Supabase%20(PostgreSQL)-3ecf8e.svg)](#)
+[![Database](<https://img.shields.io/badge/Database-Supabase%20(PostgreSQL)-3ecf8e.svg>)](#)
 [![Styling](https://img.shields.io/badge/Styling-Tailwind%20CSS-38bdf8.svg)](#)
 
 ---
 
 ## 📖 Overview
 
-**Hotel Ratna Forever** is the flagship hospitality landmark situated on the Nitte main highway, minutes from the **NMAMIT** engineering campus and **Nitte Deemed to be University**. 
+**Hotel Ratna Forever** is the flagship hospitality landmark situated on the Nitte main highway, minutes from the **NMAMIT** engineering campus and **Nitte Deemed to be University**.
 
 This web application provides an attractive, modern guest experience combining high-resolution property photography, showcase of celebrated coastal Tulu Nadu cuisine, and a **direct online booking engine** that records reservations straight to the hotel's database with integrated UPI advance payment verification—without requiring external booking intermediaries or WhatsApp messages.
 
@@ -23,22 +23,25 @@ This web application provides an attractive, modern guest experience combining h
 ## ✨ Key Features
 
 ### 🌟 1. Luxury Design System & Aesthetics
+
 - **Curated Color Palette**: Deep midnight slate (`#020617`), warm gold/amber accents, and soft ivory tones.
 - **Glassmorphism**: Translucent frosted glass containers (`.glass-card`), layered ambient glow, and high-contrast typography.
 - **Micro-Interactions**: Shimmer buttons (`.shimmer-btn`), interactive cards with smooth elevations, and dynamic navigation state transitions.
 - **Responsive Layout**: Designed for seamless browsing across ultra-wide monitors, standard laptops, tablets, and mobile devices with a slide-out drawer menu.
 
 ### 🏠 2. Streamlined 4-Page Architecture
+
 All content has been consolidated into four clean, high-impact pages:
 
-| Page | Route | Description |
-|---|---|---|
-| **Home** | `/` | Cinematic hero, live booking widget, trust stats, room previews, coastal dining highlights, hotel privileges grid, visual photo gallery, guest reviews, and embedded map. |
-| **Rooms & Suites** | `/rooms` | Detailed showcases for Deluxe Rooms, Executive Rooms, and Family Suites with tariff breakdowns, amenities, and direct reservation triggers. |
-| **Reservations** | `/reservations` | Multi-step booking engine with real-time Supabase inventory checks, booking reference issuance, and integrated UPI advance payments. |
-| **Contact & Location** | `/contact` | Full address, interactive Google Maps, key travel distance matrix (campus, airport, railway), and 24/7 front desk phone. |
+| Page                   | Route           | Description                                                                                                                                                               |
+| ---------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Home**               | `/`             | Cinematic hero, live booking widget, trust stats, room previews, coastal dining highlights, hotel privileges grid, visual photo gallery, guest reviews, and embedded map. |
+| **Rooms & Suites**     | `/rooms`        | Detailed showcases for Deluxe Rooms, Executive Rooms, and Family Suites with tariff breakdowns, amenities, and direct reservation triggers.                               |
+| **Reservations**       | `/reservations` | Multi-step booking engine with real-time Supabase inventory checks, booking reference issuance, and integrated UPI advance payments.                                      |
+| **Contact & Location** | `/contact`      | Full address, interactive Google Maps, key travel distance matrix (campus, airport, railway), and 24/7 front desk phone.                                                  |
 
 ### ⚡ 3. Functional Direct Booking Engine
+
 - **Live Inventory Inquiries**: Queries real-time room availability via the `get_availability` Supabase RPC function based on selected check-in and check-out dates.
 - **Step-by-Step Booking Wizard**:
   1. **Dates & Occupancy**: Safe date validation, night count calculations, and guest selection (adults & children).
@@ -54,14 +57,16 @@ All content has been consolidated into four clean, high-impact pages:
   - Returning guests can input their reference code and contact number to check their confirmation and payment status or submit a payment reference anytime.
 
 ### 🍽️ 4. The Celebrated Coastal Kitchen
+
 - Showcases the hotel's renowned Mangalorean seafood cuisine prepared with fresh Malpe catch and native Byadgi ghee roast marinades:
-  - *Prawn Ghee Roast*
-  - *Kane (Ladyfish) Fish Masala Fry*
-  - *Neer Dosa & Chicken Sukka*
-  - *Authentic South Indian Breakfast & Filter Coffee*
+  - _Prawn Ghee Roast_
+  - _Kane (Ladyfish) Fish Masala Fry_
+  - _Neer Dosa & Chicken Sukka_
+  - _Authentic South Indian Breakfast & Filter Coffee_
 - Details breakfast hours (7:30 AM – 10:30 AM) and room service availability (until 11:00 PM).
 
 ### 🏛️ 5. Facilities & Event Banquets
+
 - Comprehensive details on the 300-seat wedding and reception banquet hall, air-conditioned seminar room, ample highway parking, generator power backup, and laundry services.
 
 ---
@@ -116,6 +121,7 @@ All content has been consolidated into four clean, high-impact pages:
 ## 🚀 How to Install and Run
 
 ### Prerequisites
+
 - **Node.js**: v18.0.0 or higher (v20+ LTS recommended) — [Download Node.js](https://nodejs.org/)
 - **Package Manager**: `npm` (bundled with Node.js) or `pnpm` / `bun`
 - **Git**: [Download Git](https://git-scm.com/)
@@ -125,46 +131,61 @@ All content has been consolidated into four clean, high-impact pages:
 ### Step-by-Step Quickstart
 
 #### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/Shadow-hunter58/Project_hotel.git
 cd Project_hotel
 ```
 
 #### 2. Install Dependencies
+
 Run npm install in the project root directory:
+
 ```bash
 npm install
 ```
 
 #### 3. Configure Environment Variables
+
 Create a `.env` file in the root directory:
+
 ```env
 VITE_SUPABASE_URL="https://your-supabase-project-id.supabase.co"
 VITE_SUPABASE_PUBLISHABLE_KEY="your-supabase-publishable-key"
 ```
-*(Note: Default public demo credentials are pre-configured in `src/integrations/supabase/client.ts` for immediate local preview.)*
+
+_(Note: Default public demo credentials are pre-configured in `src/integrations/supabase/client.ts` for immediate local preview.)_
 
 #### 4. Start the Local Development Server
+
 ```bash
 npm run dev
 ```
+
 Open your browser and navigate to:
+
 ```text
 http://localhost:8080/
 ```
+
 The Vite development server will automatically reload when you save changes to source files.
 
 #### 5. Validate TypeScript Types
+
 To run strict static type-checking across all routes and libraries:
+
 ```bash
 npx tsc --noEmit
 ```
 
 #### 6. Build for Production
+
 To compile and test the full production-optimized bundle:
+
 ```bash
 npm run build
 ```
+
 The compiled output is generated in `.output/` and can be previewed or deployed to Cloudflare / Vercel / Netlify.
 
 ---
@@ -174,6 +195,7 @@ The compiled output is generated in `.output/` and can be previewed or deployed 
 When a guest reserves a room, the system automatically dispatches the booking confirmation voucher via SMS and Email:
 
 ### SMS Dispatch Options
+
 1. **Fast2SMS (Recommended for India)**:
    Add your Fast2SMS API key to `.env`:
    ```env
@@ -190,7 +212,9 @@ When a guest reserves a room, the system automatically dispatches the booking co
    If no gateway key is supplied in `.env`, the confirmation screen instantly provides a **1-tap SMS launcher** (`sms:+91...?body=...`) and **WhatsApp direct link** pre-loaded with the guest's room voucher, dates, reference, and tariff.
 
 ### Automated HTML Email Receipts
+
 Powered by Resend:
+
 ```env
 RESEND_API_KEY="re_123456789"
 ```

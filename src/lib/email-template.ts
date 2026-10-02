@@ -4,8 +4,9 @@ import type { ReceiptDetails } from "./booking";
  * Generates an executive, responsive HTML email for booking receipts.
  */
 export function generateBookingEmailHtml(details: ReceiptDetails): string {
-  const advanceNote = details.advancePaid && details.advancePaid > 0
-    ? `<tr>
+  const advanceNote =
+    details.advancePaid && details.advancePaid > 0
+      ? `<tr>
         <td style="padding: 10px 16px; font-size: 13px; color: #475569; border-bottom: 1px solid #e2e8f0;">Advance Paid:</td>
         <td style="padding: 10px 16px; font-size: 13px; font-weight: 600; color: #059669; text-align: right; border-bottom: 1px solid #e2e8f0;">INR ${details.advancePaid.toLocaleString("en-IN")}</td>
        </tr>
@@ -13,7 +14,7 @@ export function generateBookingEmailHtml(details: ReceiptDetails): string {
         <td style="padding: 10px 16px; font-size: 13px; color: #475569; border-bottom: 1px solid #e2e8f0;">Balance Due at Reception:</td>
         <td style="padding: 10px 16px; font-size: 13px; font-weight: 700; color: #0f172a; text-align: right; border-bottom: 1px solid #e2e8f0;">INR ${Math.max(0, details.totalTariff - details.advancePaid).toLocaleString("en-IN")}</td>
        </tr>`
-    : `<tr>
+      : `<tr>
         <td style="padding: 10px 16px; font-size: 13px; color: #475569; border-bottom: 1px solid #e2e8f0;">Payment Status:</td>
         <td style="padding: 10px 16px; font-size: 13px; font-weight: 600; color: #d97706; text-align: right; border-bottom: 1px solid #e2e8f0;">${details.paymentStatus ?? "Confirmed (Pay at Reception)"}</td>
        </tr>`;
@@ -200,9 +201,7 @@ export async function sendAutomatedBookingEmail(details: ReceiptDetails): Promis
 
   // 2. Direct server-side Resend API call if running in Node server environment
   const apiKey =
-    typeof process !== "undefined" && process.env
-      ? process.env["RESEND_API_KEY"]
-      : undefined;
+    typeof process !== "undefined" && process.env ? process.env["RESEND_API_KEY"] : undefined;
 
   if (typeof window === "undefined" && apiKey) {
     try {
@@ -222,7 +221,10 @@ export async function sendAutomatedBookingEmail(details: ReceiptDetails): Promis
       });
 
       if (res.ok) {
-        return { sent: true, message: `Automated confirmation email sent to ${details.guestEmail}` };
+        return {
+          sent: true,
+          message: `Automated confirmation email sent to ${details.guestEmail}`,
+        };
       }
     } catch (err) {
       return {

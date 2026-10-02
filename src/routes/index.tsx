@@ -1,15 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import heroExterior from "@/assets/real-exterior.jpg";
-import {
-  PHONE,
-  PHONE_DISPLAY,
-  rooms,
-  dishes,
-  facilities,
-  reviews,
-  gallery,
-} from "@/lib/site-data";
+import { PHONE, PHONE_DISPLAY, rooms, dishes, facilities, reviews, gallery } from "@/lib/site-data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,7 +12,10 @@ export const Route = createFileRoute("/")({
         content:
           "Welcome to Hotel Ratna Forever in Nitte, Karkala Taluk. Premium air-conditioned rooms, celebrated coastal Mangalorean cuisine, grand banquet halls, and 24-hour service. Rated 4.1★ by 2,499+ guests.",
       },
-      { property: "og:title", content: "Hotel Ratna Forever, Nitte — Coastal Hospitality at its Finest" },
+      {
+        property: "og:title",
+        content: "Hotel Ratna Forever, Nitte — Coastal Hospitality at its Finest",
+      },
       {
         property: "og:description",
         content:
@@ -82,7 +77,8 @@ function HomePage() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-slate-200 sm:text-xl font-light">
-            Impeccable air-conditioned rooms, legendary coastal seafood, and grand banquet facilities right on the Nitte main road — moments from the NMAMIT campus.
+            Impeccable air-conditioned rooms, legendary coastal seafood, and grand banquet
+            facilities right on the Nitte main road — moments from the NMAMIT campus.
           </p>
 
           {/* Floating Booking Quick-Widget */}
@@ -125,10 +121,18 @@ function HomePage() {
                     onChange={(e) => setGuestCount(e.target.value)}
                     className="mt-1 w-full bg-transparent text-xs font-medium text-white outline-none"
                   >
-                    <option value="1" className="bg-slate-900 text-white">1 Guest</option>
-                    <option value="2" className="bg-slate-900 text-white">2 Guests</option>
-                    <option value="3" className="bg-slate-900 text-white">3 Guests</option>
-                    <option value="4" className="bg-slate-900 text-white">4+ Family</option>
+                    <option value="1" className="bg-slate-900 text-white">
+                      1 Guest
+                    </option>
+                    <option value="2" className="bg-slate-900 text-white">
+                      2 Guests
+                    </option>
+                    <option value="3" className="bg-slate-900 text-white">
+                      3 Guests
+                    </option>
+                    <option value="4" className="bg-slate-900 text-white">
+                      4+ Family
+                    </option>
                   </select>
                 </div>
 
@@ -215,7 +219,8 @@ function HomePage() {
                 Rooms & Suites
               </h2>
               <p className="mt-2 text-sm text-slate-300 max-w-xl">
-                Each room is air-conditioned, sanitized daily, and appointed with premium teak furnishings, high-speed Wi-Fi, and 24-hour hot water.
+                Each room is air-conditioned, sanitized daily, and appointed with premium teak
+                furnishings, high-speed Wi-Fi, and 24-hour hot water.
               </p>
             </div>
             <Link
@@ -305,14 +310,21 @@ function HomePage() {
                 Authentic Tulu Nadu Seafood & Curated Tastes
               </h2>
               <p className="text-sm leading-relaxed text-slate-300 sm:text-base">
-                People drive from across Karkala and Udupi for the kitchen at Hotel Ratna Forever. We serve the freshest catch from Malpe, slow-roasted in native Byadgi chillies and genuine artisanal ghee.
+                People drive from across Karkala and Udupi for the kitchen at Hotel Ratna Forever.
+                We serve the freshest catch from Malpe, slow-roasted in native Byadgi chillies and
+                genuine artisanal ghee.
               </p>
 
               <div className="space-y-4 pt-2">
                 {dishes.map((dish) => (
-                  <div key={dish.name} className="glass-card rounded-xl p-4 transition-all hover:border-amber-400/30">
+                  <div
+                    key={dish.name}
+                    className="glass-card rounded-xl p-4 transition-all hover:border-amber-400/30"
+                  >
                     <div className="flex items-baseline justify-between">
-                      <h4 className="font-serif text-base font-semibold text-amber-300">{dish.name}</h4>
+                      <h4 className="font-serif text-base font-semibold text-amber-300">
+                        {dish.name}
+                      </h4>
                       <span className="text-xs text-amber-400/80">Signature</span>
                     </div>
                     <p className="mt-1 text-xs text-slate-400">{dish.note}</p>
@@ -342,14 +354,20 @@ function HomePage() {
                   </div>
                   <div className="glass-card rounded-2xl p-6 text-center">
                     <span className="font-serif text-3xl font-bold text-amber-400">Fresh</span>
-                    <p className="mt-1 text-xs text-slate-300">Catch brought in daily from Malpe coastal harbor</p>
+                    <p className="mt-1 text-xs text-slate-300">
+                      Catch brought in daily from Malpe coastal harbor
+                    </p>
                   </div>
                 </div>
 
                 <div className="space-y-4 sm:mt-8">
                   <div className="glass-card rounded-2xl p-6 text-center">
-                    <span className="font-serif text-3xl font-bold text-amber-400">Teak Lounge</span>
-                    <p className="mt-1 text-xs text-slate-300">Family dining halls and private banquet suites</p>
+                    <span className="font-serif text-3xl font-bold text-amber-400">
+                      Teak Lounge
+                    </span>
+                    <p className="mt-1 text-xs text-slate-300">
+                      Family dining halls and private banquet suites
+                    </p>
                   </div>
                   <div className="overflow-hidden rounded-2xl shadow-xl">
                     <img
@@ -459,16 +477,16 @@ function HomePage() {
                 className="glass-card relative flex flex-col justify-between rounded-3xl p-8"
               >
                 <div>
-                  <div className="flex gap-1 text-amber-400 text-sm">
-                    {"★".repeat(5)}
-                  </div>
+                  <div className="flex gap-1 text-amber-400 text-sm">{"★".repeat(5)}</div>
                   <p className="mt-4 font-serif text-base italic leading-relaxed text-slate-100">
                     "{rev.quote}"
                   </p>
                 </div>
                 <div className="mt-6 border-t border-white/10 pt-4 flex items-center justify-between text-xs text-slate-300">
                   <span className="font-semibold text-white">{rev.name}</span>
-                  <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-amber-300">{rev.source}</span>
+                  <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-amber-300">
+                    {rev.source}
+                  </span>
                 </div>
               </div>
             ))}
@@ -486,7 +504,8 @@ function HomePage() {
             Experience the Warmth of Hotel Ratna Forever
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base text-slate-300">
-            Plan your visit to Nitte with guaranteed live availability, transparent direct tariffs, and dedicated front-desk care.
+            Plan your visit to Nitte with guaranteed live availability, transparent direct tariffs,
+            and dedicated front-desk care.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
