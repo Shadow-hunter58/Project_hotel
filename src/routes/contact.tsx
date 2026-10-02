@@ -47,7 +47,6 @@ function ContactPage() {
       <section className="py-14 sm:py-20">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="grid gap-10 lg:grid-cols-12">
-            
             {/* Information Column */}
             <div className="space-y-8 lg:col-span-5">
               {/* Core Address & Contact */}
@@ -80,7 +79,8 @@ function ContactPage() {
                     </a>
                   </div>
                   <p className="text-xs text-slate-400">
-                    Our reception desk is staffed around the clock for late check-ins and campus visits.
+                    Our reception desk is staffed around the clock for late check-ins and campus
+                    visits.
                   </p>
                 </div>
 
@@ -135,7 +135,10 @@ function ContactPage() {
                   </span>
                   <div className="divide-y divide-white/[0.06] text-xs">
                     {transitDistances.map((item) => (
-                      <div key={item.place} className="flex items-center justify-between py-2 text-slate-300">
+                      <div
+                        key={item.place}
+                        className="flex items-center justify-between py-2 text-slate-300"
+                      >
                         <span>{item.place}</span>
                         <div className="text-right">
                           <span className="text-slate-400">{item.dist}</span>
@@ -164,7 +167,6 @@ function ContactPage() {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </section>

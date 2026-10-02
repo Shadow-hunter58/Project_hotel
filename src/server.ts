@@ -55,10 +55,10 @@ async function handleSmsApi(request: Request, env: unknown): Promise<Response> {
     const phone = body.phone?.trim();
     const message = body.message?.trim();
     if (!phone || !message) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Missing phone or message" }),
-        { status: 400, headers: { "content-type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ success: false, message: "Missing phone or message" }), {
+        status: 400,
+        headers: { "content-type": "application/json" },
+      });
     }
 
     const envMap = (env as Record<string, string> | undefined) ?? {};
@@ -67,13 +67,19 @@ async function handleSmsApi(request: Request, env: unknown): Promise<Response> {
       (typeof process !== "undefined" && process.env ? process.env["FAST2SMS_API_KEY"] : undefined);
     const twilioSid =
       envMap["TWILIO_ACCOUNT_SID"] ||
-      (typeof process !== "undefined" && process.env ? process.env["TWILIO_ACCOUNT_SID"] : undefined);
+      (typeof process !== "undefined" && process.env
+        ? process.env["TWILIO_ACCOUNT_SID"]
+        : undefined);
     const twilioToken =
       envMap["TWILIO_AUTH_TOKEN"] ||
-      (typeof process !== "undefined" && process.env ? process.env["TWILIO_AUTH_TOKEN"] : undefined);
+      (typeof process !== "undefined" && process.env
+        ? process.env["TWILIO_AUTH_TOKEN"]
+        : undefined);
     const twilioFrom =
       envMap["TWILIO_PHONE_NUMBER"] ||
-      (typeof process !== "undefined" && process.env ? process.env["TWILIO_PHONE_NUMBER"] : undefined);
+      (typeof process !== "undefined" && process.env
+        ? process.env["TWILIO_PHONE_NUMBER"]
+        : undefined);
     const gatewayUrl =
       envMap["SMS_GATEWAY_URL"] ||
       (typeof process !== "undefined" && process.env ? process.env["SMS_GATEWAY_URL"] : undefined);
@@ -110,7 +116,9 @@ async function handleSmsApi(request: Request, env: unknown): Promise<Response> {
         JSON.stringify({
           success: false,
           provider: "Fast2SMS",
-          message: Array.isArray(data.message) ? data.message.join(", ") : "Fast2SMS gateway rejected request",
+          message: Array.isArray(data.message)
+            ? data.message.join(", ")
+            : "Fast2SMS gateway rejected request",
         }),
         { headers: { "content-type": "application/json" } },
       );
@@ -161,11 +169,20 @@ async function handleSmsApi(request: Request, env: unknown): Promise<Response> {
       const res = await fetch(gatewayUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, message, reference: body.reference, guestName: body.guestName }),
+        body: JSON.stringify({
+          phone,
+          message,
+          reference: body.reference,
+          guestName: body.guestName,
+        }),
       });
       if (res.ok) {
         return new Response(
-          JSON.stringify({ success: true, provider: "Custom Gateway", message: "SMS dispatched via gateway" }),
+          JSON.stringify({
+            success: true,
+            provider: "Custom Gateway",
+            message: "SMS dispatched via gateway",
+          }),
           { headers: { "content-type": "application/json" } },
         );
       }
@@ -191,12 +208,92 @@ async function handleSmsApi(request: Request, env: unknown): Promise<Response> {
   }
 }
 
+import { generateBookingEmailHtml } from "./lib/email-template";
+import type { ReceiptDetails } from "./lib/booking";
+
+async function handleEmailApi(request: Request, env: unknown): Promise<Response> {
+  try {
+    const details = (await request.json().catch(() => null)) as ReceiptDetails | null;
+    const guestEmail = details?.guestEmail?.trim();
+    if (!details || !guestEmail || !guestEmail.includes("@")) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Valid guest email address is required" }),
+        { status: 400, headers: { "content-type": "application/json" } },
+      );
+    }
+
+    const envMap = (env as Record<string, string> | undefined) ?? {};
+    const apiKey =
+      envMap["RESEND_API_KEY"] ||
+      (typeof process !== "undefined" && process.env ? process.env["RESEND_API_KEY"] : undefined);
+
+    if (!apiKey) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          provider: "none",
+          message: "No email API key configured (RESEND_API_KEY).",
+        }),
+        { headers: { "content-type": "application/json" } },
+      );
+    }
+
+    const html = generateBookingEmailHtml(details);
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Hotel Ratna Forever <reservations@hotelratnaforever.com>",
+        to: [guestEmail],
+        subject: `Your Booking Confirmation & Stay Receipt [${details.reference}] - Hotel Ratna Forever`,
+        html,
+      }),
+    });
+
+    if (res.ok) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          provider: "Resend",
+          message: `Confirmation email sent to ${guestEmail}`,
+        }),
+        { headers: { "content-type": "application/json" } },
+      );
+    }
+
+    const errData = await res.json().catch(() => ({}));
+    return new Response(
+      JSON.stringify({
+        success: false,
+        provider: "Resend",
+        message: `Email gateway rejected request: ${JSON.stringify(errData)}`,
+      }),
+      { headers: { "content-type": "application/json" } },
+    );
+  } catch (err) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        provider: "server",
+        message: err instanceof Error ? err.message : "Internal error sending email",
+      }),
+      { status: 500, headers: { "content-type": "application/json" } },
+    );
+  }
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const url = new URL(request.url);
       if (url.pathname === "/api/send-sms" && request.method === "POST") {
         return await handleSmsApi(request, env);
+      }
+      if (url.pathname === "/api/send-email" && request.method === "POST") {
+        return await handleEmailApi(request, env);
       }
 
       const handler = await getServerEntry();
@@ -211,4 +308,3 @@ export default {
     }
   },
 };
-

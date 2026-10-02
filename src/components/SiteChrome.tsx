@@ -24,7 +24,10 @@ export function SiteHeader() {
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
-        <Link to="/" className="group flex items-center gap-3.5 leading-tight text-white transition-opacity hover:opacity-95">
+        <Link
+          to="/"
+          className="group flex items-center gap-3.5 leading-tight text-white transition-opacity hover:opacity-95"
+        >
           <div className="relative overflow-hidden rounded-md bg-white/95 p-1.5 shadow-md ring-1 ring-amber-400/30 transition-transform group-hover:scale-[1.02]">
             <img
               src={ratnaLogo}
@@ -65,8 +68,18 @@ export function SiteHeader() {
             href={`tel:${PHONE}`}
             className="hidden items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-medium text-slate-200 backdrop-blur-md transition-all hover:border-amber-400/40 hover:bg-white/10 sm:flex"
           >
-            <svg className="h-3.5 w-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            <svg
+              className="h-3.5 w-3.5 text-amber-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+              />
             </svg>
             <span>{PHONE_DISPLAY}</span>
           </a>
@@ -77,7 +90,12 @@ export function SiteHeader() {
           >
             <span>Reservations</span>
             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2.5}
+                d="M14 5l7 7m0 0l-7 7m7-7H3"
+              />
             </svg>
           </Link>
 
@@ -90,9 +108,15 @@ export function SiteHeader() {
             className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white transition-colors hover:bg-white/10 lg:hidden"
           >
             <div className="flex flex-col gap-1.5">
-              <span className={`block h-0.5 w-5 bg-white transition-transform ${open ? "translate-y-2 rotate-45" : ""}`} />
-              <span className={`block h-0.5 w-5 bg-white transition-opacity ${open ? "opacity-0" : ""}`} />
-              <span className={`block h-0.5 w-5 bg-white transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`} />
+              <span
+                className={`block h-0.5 w-5 bg-white transition-transform ${open ? "translate-y-2 rotate-45" : ""}`}
+              />
+              <span
+                className={`block h-0.5 w-5 bg-white transition-opacity ${open ? "opacity-0" : ""}`}
+              />
+              <span
+                className={`block h-0.5 w-5 bg-white transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`}
+              />
             </div>
           </button>
         </div>
@@ -123,15 +147,30 @@ export function SiteHeader() {
             >
               <span>Book a Stay</span>
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
               </svg>
             </Link>
             <a
               href={`tel:${PHONE}`}
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 py-3 text-center text-xs font-semibold text-white transition-colors hover:bg-white/10"
             >
-              <svg className="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              <svg
+                className="h-4 w-4 text-amber-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                />
               </svg>
               Direct Call: {PHONE_DISPLAY}
             </a>
@@ -164,7 +203,9 @@ export function SiteFooter() {
               </div>
             </Link>
             <p className="max-w-md text-sm leading-relaxed text-slate-400">
-              The premier hospitality landmark of Nitte, Karnataka. Experience genuine coastal hospitality, immaculate accommodations, and the celebrated flavours of coastal Tulu Nadu.
+              The premier hospitality landmark of Nitte, Karnataka. Experience genuine coastal
+              hospitality, immaculate accommodations, and the celebrated flavours of coastal Tulu
+              Nadu.
             </p>
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 font-medium text-amber-300">
@@ -213,14 +254,25 @@ export function SiteFooter() {
                   href={`tel:${PHONE}`}
                   className="inline-flex items-center gap-2 text-white transition-colors hover:text-amber-400 font-medium"
                 >
-                  <svg className="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  <svg
+                    className="h-4 w-4 text-amber-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    />
                   </svg>
                   {PHONE_DISPLAY}
                 </a>
               </div>
               <p className="text-xs text-slate-400">
-                Check-in: <strong className="text-slate-200">12:00 PM</strong> · Check-out: <strong className="text-slate-200">11:00 AM</strong>
+                Check-in: <strong className="text-slate-200">12:00 PM</strong> · Check-out:{" "}
+                <strong className="text-slate-200">11:00 AM</strong>
               </p>
             </div>
           </div>
