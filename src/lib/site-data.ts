@@ -7,7 +7,6 @@ import realHall from "@/assets/real-hall.jpg";
 import realMeeting from "@/assets/real-meeting.jpg";
 import realSuiteDining from "@/assets/real-suite-dining.jpg";
 import realEventStage from "@/assets/real-event-stage.jpg";
-import realLounge from "@/assets/real-lounge.jpg";
 
 export const PHONE = "+917338088744";
 export const PHONE_DISPLAY = "+91 73380 88744";
@@ -168,10 +167,10 @@ export const gallery = [
     alt: "Daytime view of the Hotel Ratna Forever building with its blue glass facade and forecourt parking",
   },
   {
-    src: realLounge,
-    title: "Lobby lounge",
-    note: "Cushioned seating, aquarium and reception desk, staffed round the clock",
-    alt: "Hotel Ratna Forever lobby lounge with cream sofas, a magazine table, carved teak daybed, aquarium and reception desk",
+    src: realSuiteLiving,
+    title: "Lobby & suite lounge",
+    note: "Cushioned seating, relaxed living space, staffed round the clock",
+    alt: "Hotel Ratna Forever lounge with comfortable seating and teak furnishings",
   },
   {
     src: realSuiteDining,
