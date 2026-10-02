@@ -171,12 +171,6 @@ export const gallery = [
     alt: "Daytime view of the Hotel Ratna Forever building with its blue glass facade and forecourt parking",
   },
   {
-    src: realSuiteLiving,
-    title: "Lobby & suite lounge",
-    note: "Cushioned seating, relaxed living space, staffed round the clock",
-    alt: "Hotel Ratna Forever lounge with comfortable seating and teak furnishings",
-  },
-  {
     src: realSuiteDining,
     title: "Suite dining area",
     note: "In-suite dining table with pantry counter and fridge",
@@ -200,12 +194,7 @@ export const gallery = [
     note: "Illuminated facade and parking area welcoming late-night guests",
     alt: "Hotel Ratna Forever entrance lit up at night with cars parked in front",
   },
-  {
-    src: realBlueGlass,
-    title: "Blue-glass tower",
-    note: "Signature blue-glass curtain wall visible from the Nitte main road",
-    alt: "Full view of Hotel Ratna Forever blue glass tower building during the day",
-  },
+
   {
     src: realPrivateDining,
     title: "Private dining room",
