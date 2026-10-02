@@ -62,7 +62,7 @@ function HomePage() {
             alt="Hotel Ratna Forever illuminated facade at night in Nitte"
             width={1600}
             height={1080}
-            className="h-full w-full object-cover object-center brightness-[0.72] scale-105 transition-transform duration-1000"
+            className="h-full w-full object-cover object-center brightness-[0.55] scale-105 transition-transform duration-1000"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/40" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.12)_0%,transparent_70%)]" />
