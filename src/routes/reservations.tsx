@@ -2,7 +2,15 @@ import { useState, useMemo, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/SiteChrome";
 import ratnaLogo from "@/assets/ratna-logo.png";
-import { PHONE, PHONE_DISPLAY, UPI_ID, UPI_NAME, rooms as localRooms, serviceRoomOptions, type AcVariant } from "@/lib/site-data";
+import {
+  PHONE,
+  PHONE_DISPLAY,
+  UPI_ID,
+  UPI_NAME,
+  rooms as localRooms,
+  serviceRoomOptions,
+  type AcVariant,
+} from "@/lib/site-data";
 import {
   createBooking,
   fetchAvailability,
@@ -77,7 +85,11 @@ const safePrettyDate = (iso: string): string => {
 };
 
 const formatCurrency = (val: number) =>
-  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(val);
 
 function ReservationsPage() {
   const [activeTab, setActiveTab] = useState<"book" | "manage">("book");
@@ -102,8 +114,10 @@ function ReservationsPage() {
   // AC/Non-AC preference
   const [acPreference, setAcPreference] = useState<"AC" | "Non-AC">("AC");
   // Service Room combo choice (only relevant when Service Room is selected)
-  const [serviceRoomChoice, setServiceRoomChoice] = useState<"service_only" | "service_with_deluxe">("service_only");
-  
+  const [serviceRoomChoice, setServiceRoomChoice] = useState<
+    "service_only" | "service_with_deluxe"
+  >("service_only");
+
   // Structured Special Request & Extra Bed Dropdown State
   const [extraBedOption, setExtraBedOption] = useState<"0" | "1" | "2" | "other">("0");
   const [specialRequestOption, setSpecialRequestOption] = useState<
@@ -151,12 +165,19 @@ function ReservationsPage() {
   // Determine current room's AC variant pricing
   const selectedLocalRoom = useMemo(() => {
     if (!selectedRoom) return null;
-    return localRooms.find((r) => r.name.toLowerCase() === selectedRoom.name.toLowerCase()) ?? localRooms[0];
+    return (
+      localRooms.find((r) => r.name.toLowerCase() === selectedRoom.name.toLowerCase()) ??
+      localRooms[0]
+    );
   }, [selectedRoom]);
 
   const selectedAcVariant = useMemo((): AcVariant | null => {
     if (!selectedLocalRoom) return null;
-    return selectedLocalRoom.acVariants.find((v) => v.label === acPreference) ?? selectedLocalRoom.acVariants[0];
+    return (
+      selectedLocalRoom.acVariants.find((v) => v.label === acPreference) ??
+      selectedLocalRoom.acVariants[0] ??
+      null
+    );
   }, [selectedLocalRoom, acPreference]);
 
   const isServiceRoom = useMemo(() => {
@@ -176,7 +197,10 @@ function ReservationsPage() {
     return 0;
   }, [extraBedOption]);
 
-  const extraBedTotal = useMemo(() => extraBedPricePerNight * nights, [extraBedPricePerNight, nights]);
+  const extraBedTotal = useMemo(
+    () => extraBedPricePerNight * nights,
+    [extraBedPricePerNight, nights],
+  );
 
   const roomTariffTotal = useMemo(() => {
     if (!selectedAcVariant) return 0;
@@ -214,7 +238,8 @@ function ReservationsPage() {
     const parts: string[] = [];
     parts.push(`Cooling: ${acPreference}`);
     if (isServiceRoom) {
-      const comboLabel = serviceRoomOptions.find((o) => o.id === serviceRoomChoice)?.label ?? serviceRoomChoice;
+      const comboLabel =
+        serviceRoomOptions.find((o) => o.id === serviceRoomChoice)?.label ?? serviceRoomChoice;
       parts.push(`Service Option: ${comboLabel}`);
     }
     if (extraBedsLabel) parts.push(`Bedding: ${extraBedsLabel}`);
@@ -223,7 +248,14 @@ function ReservationsPage() {
       parts.push(`Notes: ${customNotes.trim()}`);
     }
     return parts.join(" | ");
-  }, [acPreference, isServiceRoom, serviceRoomChoice, extraBedsLabel, specialRequestsLabel, customNotes]);
+  }, [
+    acPreference,
+    isServiceRoom,
+    serviceRoomChoice,
+    extraBedsLabel,
+    specialRequestsLabel,
+    customNotes,
+  ]);
 
   const formatPhoneForWhatsApp = (raw: string) => {
     const cleaned = raw.replace(/\D/g, "");
@@ -262,9 +294,12 @@ function ReservationsPage() {
     };
 
     if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(notifyCopied).catch(() => {
-        if (fallbackCopyText(text)) notifyCopied();
-      });
+      navigator.clipboard
+        .writeText(text)
+        .then(notifyCopied)
+        .catch(() => {
+          if (fallbackCopyText(text)) notifyCopied();
+        });
     } else {
       if (fallbackCopyText(text)) notifyCopied();
     }
@@ -368,7 +403,9 @@ function ReservationsPage() {
       adults: lookupBookingData.adults,
       children: lookupBookingData.children,
       totalTariff: lookupBookingData.estimated_total,
-      paymentStatus: managePaySuccess ? "Advance Recorded via UPI" : lookupBookingData.payment_status,
+      paymentStatus: managePaySuccess
+        ? "Advance Recorded via UPI"
+        : lookupBookingData.payment_status,
       advancePaid: managePaySuccess ? managePayAmount : undefined,
     });
   }, [lookupBookingData, lookupPhone, managePaySuccess, managePayAmount]);
@@ -387,7 +424,9 @@ function ReservationsPage() {
       adults: lookupBookingData.adults,
       children: lookupBookingData.children,
       totalTariff: lookupBookingData.estimated_total,
-      paymentStatus: managePaySuccess ? "Advance Recorded via UPI" : lookupBookingData.payment_status,
+      paymentStatus: managePaySuccess
+        ? "Advance Recorded via UPI"
+        : lookupBookingData.payment_status,
       advancePaid: managePaySuccess ? managePayAmount : undefined,
     });
   }, [lookupBookingData, lookupPhone, managePaySuccess, managePayAmount]);
@@ -416,7 +455,9 @@ function ReservationsPage() {
   // Trigger availability search
   const handleSearch = async () => {
     if (!checkIn || !checkOut || checkOut <= checkIn) {
-      setSearchError("Check-out date must be at least 1 day after check-in. Hotel stays require at least 1 night.");
+      setSearchError(
+        "Check-out date must be at least 1 day after check-in. Hotel stays require at least 1 night.",
+      );
       return;
     }
     setLoading(true);
@@ -427,7 +468,9 @@ function ReservationsPage() {
       setResults(rows);
       setStep(2);
     } catch (err) {
-      setSearchError("Unable to retrieve real-time availability. Please check dates or call our front desk at +91 73380 88744.");
+      setSearchError(
+        "Unable to retrieve real-time availability. Please check dates or call our front desk at +91 73380 88744.",
+      );
     } finally {
       setLoading(false);
     }
@@ -439,7 +482,9 @@ function ReservationsPage() {
     if (!selectedRoom) return;
 
     if (!checkIn || !checkOut || checkOut <= checkIn) {
-      setFormError("Check-out must be after check-in. Hotel reservations require at least a 1-night stay.");
+      setFormError(
+        "Check-out must be after check-in. Hotel reservations require at least a 1-night stay.",
+      );
       return;
     }
 
@@ -535,14 +580,18 @@ function ReservationsPage() {
           specialRequestsLabel,
           paymentStatus: "Confirmed at Front Desk",
           amenities: selectedRoomDetails?.tags,
-        }).then((emailResult) => {
-          if (emailResult.sent) {
-            setAutoEmailStatus(`✓ Confirmation email sent directly to ${guestEmail.trim()}`);
-          }
-        }).catch(() => {});
+        })
+          .then((emailResult) => {
+            if (emailResult.sent) {
+              setAutoEmailStatus(`✓ Confirmation email sent directly to ${guestEmail.trim()}`);
+            }
+          })
+          .catch(() => {});
       }
     } catch (err) {
-      setFormError("Booking could not be confirmed automatically. Please call our front desk at +91 73380 88744.");
+      setFormError(
+        "Booking could not be confirmed automatically. Please call our front desk at +91 73380 88744.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -586,10 +635,14 @@ function ReservationsPage() {
       if (data) {
         setManagePayAmount(Math.min(data.estimated_total, 1000));
       } else {
-        setLookupError("No reservation found matching those details. Please call our front desk at +91 73380 88744.");
+        setLookupError(
+          "No reservation found matching those details. Please call our front desk at +91 73380 88744.",
+        );
       }
     } catch (err) {
-      setLookupError("Unable to look up reservation. Please call our front desk at +91 73380 88744.");
+      setLookupError(
+        "Unable to look up reservation. Please call our front desk at +91 73380 88744.",
+      );
     } finally {
       setLookupLoading(false);
     }
@@ -608,7 +661,9 @@ function ReservationsPage() {
       await recordPayment(lookupBookingData.reference, lookupPhone.trim(), manageUtr.trim());
       setManagePaySuccess(true);
     } catch (err) {
-      setManagePayError("Failed to record payment automatically. Please present your reference at front desk.");
+      setManagePayError(
+        "Failed to record payment automatically. Please present your reference at front desk.",
+      );
     } finally {
       setManageSubmittingPay(false);
     }
@@ -630,7 +685,6 @@ function ReservationsPage() {
 
       <section className="relative min-h-[70vh] bg-[#0a0d14] py-12 sm:py-16 text-slate-100 selection:bg-amber-400 selection:text-slate-950">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          
           {/* Main Mode Tabs */}
           <div className="mb-10 flex justify-center">
             <div className="inline-flex rounded-full bg-white/[0.04] p-1 border border-white/[0.08] backdrop-blur-md">
@@ -688,8 +742,8 @@ function ReservationsPage() {
                               step === s.num
                                 ? "bg-amber-400 text-slate-950 ring-2 ring-amber-400/20"
                                 : step > s.num
-                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                                : "bg-white/5 text-slate-500 border border-white/10"
+                                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                  : "bg-white/5 text-slate-500 border border-white/10"
                             }`}
                           >
                             {step > s.num ? "✓" : `0${s.num}`}
@@ -699,8 +753,8 @@ function ReservationsPage() {
                               step === s.num
                                 ? "text-amber-300 font-semibold"
                                 : step > s.num
-                                ? "text-slate-300"
-                                : "text-slate-500"
+                                  ? "text-slate-300"
+                                  : "text-slate-500"
                             }`}
                           >
                             {s.label}
@@ -719,9 +773,12 @@ function ReservationsPage() {
               {step === 1 && (
                 <div className="editorial-card rounded-2xl p-6 sm:p-10">
                   <div className="mb-6">
-                    <h2 className="font-serif text-2xl font-medium text-white">Select Your Stay Dates</h2>
+                    <h2 className="font-serif text-2xl font-medium text-white">
+                      Select Your Stay Dates
+                    </h2>
                     <p className="mt-1 text-sm text-slate-400">
-                      Check-in from 12:00 PM. Check-out until 11:00 AM. Complimentary South Indian breakfast included.
+                      Check-in from 12:00 PM. Check-out until 11:00 AM. Complimentary South Indian
+                      breakfast included.
                     </p>
                   </div>
 
@@ -818,14 +875,21 @@ function ReservationsPage() {
 
                   {adults + children > 2 && (
                     <div className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3.5 text-xs text-amber-200">
-                      💡 <strong>Capacity Advice for {adults + children} Guests:</strong> Standard rooms accommodate 2 guests per room. You can reserve <strong>{rooms} {rooms === 1 ? "Room" : "Rooms"}</strong>, choose our <strong>Service Room + Deluxe combo</strong> for extra space, or add an <strong>Extra Bed / Mattress</strong> in Step 3.
+                      💡 <strong>Capacity Advice for {adults + children} Guests:</strong> Standard
+                      rooms accommodate 2 guests per room. You can reserve{" "}
+                      <strong>
+                        {rooms} {rooms === 1 ? "Room" : "Rooms"}
+                      </strong>
+                      , choose our <strong>Service Room + Deluxe combo</strong> for extra space, or
+                      add an <strong>Extra Bed / Mattress</strong> in Step 3.
                     </div>
                   )}
 
                   <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/[0.08] pt-6 sm:flex-row">
                     <div className="flex items-center gap-3 text-xs text-slate-300">
                       <span className="pill-tag">
-                        {nights} {nights === 1 ? "Night" : "Nights"} · {rooms} {rooms === 1 ? "Room" : "Rooms"}
+                        {nights} {nights === 1 ? "Night" : "Nights"} · {rooms}{" "}
+                        {rooms === 1 ? "Room" : "Rooms"}
                       </span>
                       <span className="text-slate-400">
                         {safePrettyDate(checkIn)} → {safePrettyDate(checkOut)}
@@ -840,17 +904,42 @@ function ReservationsPage() {
                     >
                       {loading ? (
                         <>
-                          <svg className="h-4 w-4 animate-spin text-slate-950" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          <svg
+                            className="h-4 w-4 animate-spin text-slate-950"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
                           </svg>
                           <span>Checking Live Inventory...</span>
                         </>
                       ) : (
                         <>
                           <span>Check Room Availability</span>
-                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M14 5l7 7m0 0l-7 7m7-7H3"
+                            />
                           </svg>
                         </>
                       )}
@@ -870,9 +959,14 @@ function ReservationsPage() {
                 <div className="space-y-6">
                   <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                     <div>
-                      <h2 className="font-serif text-2xl font-semibold text-white">Available Accommodations</h2>
+                      <h2 className="font-serif text-2xl font-semibold text-white">
+                        Available Accommodations
+                      </h2>
                       <p className="text-sm text-slate-400">
-                        {safePrettyDate(checkIn)} to {safePrettyDate(checkOut)} · {nights} {nights === 1 ? "night" : "nights"} · {rooms} {rooms === 1 ? "room" : "rooms"} · {adults + children} {adults + children === 1 ? "guest" : "guests"}
+                        {safePrettyDate(checkIn)} to {safePrettyDate(checkOut)} · {nights}{" "}
+                        {nights === 1 ? "night" : "nights"} · {rooms}{" "}
+                        {rooms === 1 ? "room" : "rooms"} · {adults + children}{" "}
+                        {adults + children === 1 ? "guest" : "guests"}
                       </p>
                     </div>
                     <button
@@ -921,12 +1015,16 @@ function ReservationsPage() {
 
                             <div className="flex flex-1 flex-col p-5">
                               <div className="flex-1">
-                                <h3 className="font-serif text-lg font-medium text-white">{room.name}</h3>
+                                <h3 className="font-serif text-lg font-medium text-white">
+                                  {room.name}
+                                </h3>
                                 <p className="mt-1 text-xs text-amber-300/80">
-                                  Max {roomCapacityTotal} guests ({rooms} {rooms === 1 ? "room" : "rooms"} × {room.capacity ?? 2} per room)
+                                  Max {roomCapacityTotal} guests ({rooms}{" "}
+                                  {rooms === 1 ? "room" : "rooms"} × {room.capacity ?? 2} per room)
                                 </p>
                                 <p className="mt-2.5 text-xs leading-relaxed text-slate-300 line-clamp-2">
-                                  Air-conditioned quiet rest with 24-hr hot water, tea tray, and complimentary breakfast.
+                                  Air-conditioned quiet rest with 24-hr hot water, tea tray, and
+                                  complimentary breakfast.
                                 </p>
                               </div>
 
@@ -940,9 +1038,12 @@ function ReservationsPage() {
                                   </div>
                                   <div className="text-right">
                                     <p className="text-[11px] text-slate-400">
-                                      Total ({nights} nts × {rooms} {rooms === 1 ? "room" : "rooms"})
+                                      Total ({nights} nts × {rooms} {rooms === 1 ? "room" : "rooms"}
+                                      )
                                     </p>
-                                    <p className="text-xs font-semibold text-white">{formatCurrency(estimatedTotal)}</p>
+                                    <p className="text-xs font-semibold text-white">
+                                      {formatCurrency(estimatedTotal)}
+                                    </p>
                                   </div>
                                 </div>
 
@@ -957,11 +1058,15 @@ function ReservationsPage() {
                                     isSelected
                                       ? "bg-amber-400 text-slate-950 font-bold"
                                       : isAvailable
-                                      ? "champagne-btn"
-                                      : "cursor-not-allowed bg-white/5 text-slate-500"
+                                        ? "champagne-btn"
+                                        : "cursor-not-allowed bg-white/5 text-slate-500"
                                   }`}
                                 >
-                                  {isSelected ? "Selected ✓" : isAvailable ? "Choose Suite" : "Unavailable"}
+                                  {isSelected
+                                    ? "Selected ✓"
+                                    : isAvailable
+                                      ? "Choose Suite"
+                                      : "Unavailable"}
                                 </button>
                               </div>
                             </div>
@@ -989,9 +1094,14 @@ function ReservationsPage() {
                 <div className="editorial-card rounded-2xl p-6 sm:p-10">
                   <div className="flex flex-col items-start justify-between gap-3 border-b border-white/[0.08] pb-6 sm:flex-row sm:items-center">
                     <div>
-                      <h2 className="font-serif text-2xl font-medium text-white">Guest & Contact Details</h2>
+                      <h2 className="font-serif text-2xl font-medium text-white">
+                        Guest & Contact Details
+                      </h2>
                       <p className="mt-1 text-sm text-slate-400">
-                        Reserving: <strong className="text-amber-300 font-medium">{selectedRoom.name}</strong> for {nights} {nights === 1 ? "night" : "nights"} ({safePrettyDate(checkIn)} to {safePrettyDate(checkOut)})
+                        Reserving:{" "}
+                        <strong className="text-amber-300 font-medium">{selectedRoom.name}</strong>{" "}
+                        for {nights} {nights === 1 ? "night" : "nights"} ({safePrettyDate(checkIn)}{" "}
+                        to {safePrettyDate(checkOut)})
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -1040,7 +1150,9 @@ function ReservationsPage() {
                             <span className="mt-1 block">{opt}</span>
                             {selectedLocalRoom && (
                               <span className="mt-0.5 block text-xs opacity-70">
-                                {selectedLocalRoom.acVariants.find((v) => v.label === opt)?.priceDisplay ?? ""}/night
+                                {selectedLocalRoom.acVariants.find((v) => v.label === opt)
+                                  ?.priceDisplay ?? ""}
+                                /night
                               </span>
                             )}
                           </button>
@@ -1067,7 +1179,9 @@ function ReservationsPage() {
                               }`}
                             >
                               <div className="flex items-center justify-between">
-                                <span className={`text-sm font-medium ${serviceRoomChoice === opt.id ? "text-amber-300" : "text-slate-200"}`}>
+                                <span
+                                  className={`text-sm font-medium ${serviceRoomChoice === opt.id ? "text-amber-300" : "text-slate-200"}`}
+                                >
                                   {opt.label}
                                 </span>
                                 {opt.priceAddon > 0 && (
@@ -1089,14 +1203,22 @@ function ReservationsPage() {
                         <div className="flex items-center justify-between">
                           <span>
                             {selectedRoom.name} ({acPreference})
-                            {isServiceRoom && serviceRoomChoice === "service_with_deluxe" ? " + Deluxe Room" : ""}
+                            {isServiceRoom && serviceRoomChoice === "service_with_deluxe"
+                              ? " + Deluxe Room"
+                              : ""}
                           </span>
                           <span className="font-semibold text-emerald-300">
-                            {formatCurrency((selectedAcVariant.pricePerNight + serviceComboAddon) * nights * rooms)}
+                            {formatCurrency(
+                              (selectedAcVariant.pricePerNight + serviceComboAddon) *
+                                nights *
+                                rooms,
+                            )}
                           </span>
                         </div>
                         <div className="mt-1 text-emerald-400/60">
-                          {formatCurrency(selectedAcVariant.pricePerNight + serviceComboAddon)}/night × {nights} {nights === 1 ? "night" : "nights"} × {rooms} {rooms === 1 ? "room" : "rooms"}
+                          {formatCurrency(selectedAcVariant.pricePerNight + serviceComboAddon)}
+                          /night × {nights} {nights === 1 ? "night" : "nights"} × {rooms}{" "}
+                          {rooms === 1 ? "room" : "rooms"}
                         </div>
                       </div>
                     )}
@@ -1155,13 +1277,23 @@ function ReservationsPage() {
                         </label>
                         <select
                           value={extraBedOption}
-                          onChange={(e) => setExtraBedOption(e.target.value as any)}
+                          onChange={(e) =>
+                            setExtraBedOption(e.target.value as "0" | "1" | "2" | "other")
+                          }
                           className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                         >
-                          <option value="0" className="bg-slate-900 text-white">No Extra Bed (Standard Bedding)</option>
-                          <option value="1" className="bg-slate-900 text-white">1 Extra Rollaway Bed / Mattress (+₹500 / night)</option>
-                          <option value="2" className="bg-slate-900 text-white">2 Extra Beds / Mattresses (+₹1,000 / night)</option>
-                          <option value="other" className="bg-slate-900 text-white">Other Bedding Request...</option>
+                          <option value="0" className="bg-slate-900 text-white">
+                            No Extra Bed (Standard Bedding)
+                          </option>
+                          <option value="1" className="bg-slate-900 text-white">
+                            1 Extra Rollaway Bed / Mattress (+₹500 / night)
+                          </option>
+                          <option value="2" className="bg-slate-900 text-white">
+                            2 Extra Beds / Mattresses (+₹1,000 / night)
+                          </option>
+                          <option value="other" className="bg-slate-900 text-white">
+                            Other Bedding Request...
+                          </option>
                         </select>
                       </div>
 
@@ -1171,15 +1303,37 @@ function ReservationsPage() {
                         </label>
                         <select
                           value={specialRequestOption}
-                          onChange={(e) => setSpecialRequestOption(e.target.value as any)}
+                          onChange={(e) =>
+                            setSpecialRequestOption(
+                              e.target.value as
+                                | "none"
+                                | "early_checkin"
+                                | "quiet_room"
+                                | "ground_floor"
+                                | "campus_visit"
+                                | "other",
+                            )
+                          }
                           className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
                         >
-                          <option value="none" className="bg-slate-900 text-white">Standard Stay (No Special Preference)</option>
-                          <option value="early_checkin" className="bg-slate-900 text-white">Early Check-in Request</option>
-                          <option value="quiet_room" className="bg-slate-900 text-white">Quiet / Garden View Room</option>
-                          <option value="ground_floor" className="bg-slate-900 text-white">Ground Floor / Accessibility Access</option>
-                          <option value="campus_visit" className="bg-slate-900 text-white">Visiting Nitte University Campus</option>
-                          <option value="other" className="bg-slate-900 text-white">Other Special Request...</option>
+                          <option value="none" className="bg-slate-900 text-white">
+                            Standard Stay (No Special Preference)
+                          </option>
+                          <option value="early_checkin" className="bg-slate-900 text-white">
+                            Early Check-in Request
+                          </option>
+                          <option value="quiet_room" className="bg-slate-900 text-white">
+                            Quiet / Garden View Room
+                          </option>
+                          <option value="ground_floor" className="bg-slate-900 text-white">
+                            Ground Floor / Accessibility Access
+                          </option>
+                          <option value="campus_visit" className="bg-slate-900 text-white">
+                            Visiting Nitte University Campus
+                          </option>
+                          <option value="other" className="bg-slate-900 text-white">
+                            Other Special Request...
+                          </option>
                         </select>
                       </div>
 
@@ -1206,12 +1360,24 @@ function ReservationsPage() {
                     {formError && (
                       <div className="rounded-xl border border-rose-500/40 bg-rose-950/40 p-4 text-rose-200 shadow-lg">
                         <div className="flex items-start gap-3">
-                          <svg className="h-5 w-5 shrink-0 text-rose-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          <svg
+                            className="h-5 w-5 shrink-0 text-rose-400 mt-0.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                            />
                           </svg>
                           <div className="flex-1 space-y-2">
                             <p className="text-sm font-semibold">{formError}</p>
-                            {(formError.toLowerCase().includes("check-out") || formError.toLowerCase().includes("check-in") || checkOut <= checkIn) && (
+                            {(formError.toLowerCase().includes("check-out") ||
+                              formError.toLowerCase().includes("check-in") ||
+                              checkOut <= checkIn) && (
                               <div className="flex flex-wrap items-center gap-2 pt-1">
                                 <button
                                   type="button"
@@ -1222,7 +1388,9 @@ function ReservationsPage() {
                                   }}
                                   className="rounded-lg bg-amber-400 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-950 transition-colors hover:bg-amber-300"
                                 >
-                                  ⚡ Fix: Auto-Set 1 Night Stay ({safePrettyDate(checkIn || safeToday())} → {safePrettyDate(safeAddDays(checkIn || safeToday(), 1))})
+                                  ⚡ Fix: Auto-Set 1 Night Stay (
+                                  {safePrettyDate(checkIn || safeToday())} →{" "}
+                                  {safePrettyDate(safeAddDays(checkIn || safeToday(), 1))})
                                 </button>
                                 <button
                                   type="button"
@@ -1245,9 +1413,13 @@ function ReservationsPage() {
                     <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 sm:p-6">
                       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                         <div className="space-y-1">
-                          <p className="text-xs uppercase tracking-wider text-amber-300 font-semibold">Stay Summary & Billing</p>
+                          <p className="text-xs uppercase tracking-wider text-amber-300 font-semibold">
+                            Stay Summary & Billing
+                          </p>
                           <p className="text-sm text-slate-300">
-                            {selectedRoom.name} ({rooms} {rooms === 1 ? "Room" : "Rooms"}) · {nights} {nights === 1 ? "Night" : "Nights"} · {adults + children} {adults + children === 1 ? "Guest" : "Guests"}
+                            {selectedRoom.name} ({rooms} {rooms === 1 ? "Room" : "Rooms"}) ·{" "}
+                            {nights} {nights === 1 ? "Night" : "Nights"} · {adults + children}{" "}
+                            {adults + children === 1 ? "Guest" : "Guests"}
                           </p>
                           {extraBedTotal > 0 && (
                             <p className="text-xs text-emerald-400 font-medium">
@@ -1266,7 +1438,12 @@ function ReservationsPage() {
                             {formatCurrency(totalTariffAmount)}
                           </p>
                           <p className="text-[11px] text-slate-400">
-                            ({formatCurrency(selectedRoom.price_per_night)} × {nights} nts × {rooms} {rooms === 1 ? "rm" : "rms"}{extraBedTotal > 0 ? ` + ${formatCurrency(extraBedTotal)} extra bed` : ""})
+                            ({formatCurrency(selectedRoom.price_per_night)} × {nights} nts × {rooms}{" "}
+                            {rooms === 1 ? "rm" : "rms"}
+                            {extraBedTotal > 0
+                              ? ` + ${formatCurrency(extraBedTotal)} extra bed`
+                              : ""}
+                            )
                           </p>
                         </div>
                       </div>
@@ -1283,17 +1460,42 @@ function ReservationsPage() {
                       >
                         {submitting ? (
                           <>
-                            <svg className="h-4 w-4 animate-spin text-slate-950" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            <svg
+                              className="h-4 w-4 animate-spin text-slate-950"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              />
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              />
                             </svg>
                             <span>Confirming with Front Desk...</span>
                           </>
                         ) : (
                           <>
                             <span>Confirm Reservation</span>
-                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                            <svg
+                              className="h-4 w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2.5}
+                                d="M5 13l4 4L19 7"
+                              />
                             </svg>
                           </>
                         )}
@@ -1309,8 +1511,18 @@ function ReservationsPage() {
                   {/* Confirmed Banner */}
                   <div className="editorial-card rounded-2xl border-emerald-500/20 p-6 sm:p-10 text-center">
                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20">
-                      <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      <svg
+                        className="h-7 w-7"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
                       </svg>
                     </div>
                     <span className="mt-4 inline-block text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-400/90">
@@ -1320,11 +1532,14 @@ function ReservationsPage() {
                       We Look Forward to Welcoming You
                     </h2>
                     <p className="mx-auto mt-2 max-w-lg text-sm text-slate-300">
-                      Your booking is registered in the front desk management system. Keep your booking reference handy.
+                      Your booking is registered in the front desk management system. Keep your
+                      booking reference handy.
                     </p>
 
                     <div className="mx-auto mt-6 inline-flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] px-8 py-4">
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">Booking Reference</span>
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                        Booking Reference
+                      </span>
                       <span className="mt-1 font-mono text-3xl font-bold tracking-wider text-amber-300">
                         {confirmation.reference}
                       </span>
@@ -1332,21 +1547,33 @@ function ReservationsPage() {
 
                     <div className="mt-8 grid gap-4 text-left sm:grid-cols-2 lg:grid-cols-4 border-t border-white/[0.08] pt-6">
                       <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                        <span className="block text-[11px] text-slate-400 uppercase tracking-wider">Guest</span>
-                        <span className="mt-1 block text-sm font-medium text-white">{guestName}</span>
+                        <span className="block text-[11px] text-slate-400 uppercase tracking-wider">
+                          Guest
+                        </span>
+                        <span className="mt-1 block text-sm font-medium text-white">
+                          {guestName}
+                        </span>
                       </div>
                       <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                        <span className="block text-[11px] text-slate-400 uppercase tracking-wider">Stay Dates</span>
+                        <span className="block text-[11px] text-slate-400 uppercase tracking-wider">
+                          Stay Dates
+                        </span>
                         <span className="mt-1 block text-sm font-medium text-white">
                           {safePrettyDate(checkIn)} → {safePrettyDate(checkOut)}
                         </span>
                       </div>
                       <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                        <span className="block text-[11px] text-slate-400 uppercase tracking-wider">Room Type</span>
-                        <span className="mt-1 block text-sm font-medium text-white">{selectedRoom.name}</span>
+                        <span className="block text-[11px] text-slate-400 uppercase tracking-wider">
+                          Room Type
+                        </span>
+                        <span className="mt-1 block text-sm font-medium text-white">
+                          {selectedRoom.name}
+                        </span>
                       </div>
                       <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                        <span className="block text-[11px] text-slate-400 uppercase tracking-wider">Estimated Total</span>
+                        <span className="block text-[11px] text-slate-400 uppercase tracking-wider">
+                          Estimated Total
+                        </span>
                         <span className="mt-1 block text-sm font-medium text-amber-300">
                           {formatCurrency(confirmation.estimated_total)}
                         </span>
@@ -1364,7 +1591,8 @@ function ReservationsPage() {
                             Receipt & Voucher Delivery
                           </span>
                           <p className="mt-1 text-xs text-slate-300">
-                            Save, print, or share your official booking receipt via WhatsApp, SMS, or email.
+                            Save, print, or share your official booking receipt via WhatsApp, SMS,
+                            or email.
                           </p>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
@@ -1390,8 +1618,18 @@ function ReservationsPage() {
                             )}`}
                             className="inline-flex items-center gap-2 rounded-xl bg-blue-600/90 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-blue-500"
                           >
-                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            <svg
+                              className="h-4 w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                              />
                             </svg>
                             <span>SMS</span>
                           </a>
@@ -1402,8 +1640,18 @@ function ReservationsPage() {
                             onClick={() => window.print()}
                             className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-semibold text-slate-200 transition-all hover:bg-white/10 hover:text-white"
                           >
-                            <svg className="h-4 w-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                            <svg
+                              className="h-4 w-4 text-slate-300"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                              />
                             </svg>
                             <span>Print / PDF</span>
                           </button>
@@ -1418,8 +1666,18 @@ function ReservationsPage() {
                               <span className="text-emerald-400 font-medium">✓ Copied</span>
                             ) : (
                               <>
-                                <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                <svg
+                                  className="h-4 w-4 text-slate-400"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                  />
                                 </svg>
                                 <span>Copy</span>
                               </>
@@ -1450,7 +1708,9 @@ function ReservationsPage() {
                                 }`}
                               >
                                 <div className="flex items-start sm:items-center gap-2">
-                                  <span className="text-base leading-none">{autoSmsStatus.sent ? "✓" : "📱"}</span>
+                                  <span className="text-base leading-none">
+                                    {autoSmsStatus.sent ? "✓" : "📱"}
+                                  </span>
                                   <span>{autoSmsStatus.message}</span>
                                 </div>
                                 {!autoSmsStatus.sent && (
@@ -1522,21 +1782,33 @@ function ReservationsPage() {
                       {/* Section 1: Guest & Booking Details */}
                       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 rounded-xl bg-white/[0.02] p-4 sm:p-5 border border-white/[0.06]">
                         <div>
-                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Primary Guest</span>
-                          <span className="mt-1 block text-sm font-medium text-white">{guestName}</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">
+                            Primary Guest
+                          </span>
+                          <span className="mt-1 block text-sm font-medium text-white">
+                            {guestName}
+                          </span>
                         </div>
                         <div>
-                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Contact Number</span>
-                          <span className="mt-1 block text-sm font-medium text-white">{guestPhone}</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">
+                            Contact Number
+                          </span>
+                          <span className="mt-1 block text-sm font-medium text-white">
+                            {guestPhone}
+                          </span>
                         </div>
                         <div>
-                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Email Address</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">
+                            Email Address
+                          </span>
                           <span className="mt-1 block text-sm font-medium text-slate-200">
                             {guestEmail.trim() || "Not specified"}
                           </span>
                         </div>
                         <div>
-                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Special Notes & Preferences</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">
+                            Special Notes & Preferences
+                          </span>
                           <span className="mt-1 block text-xs text-slate-300 line-clamp-2">
                             {compiledNotesForBooking || "None"}
                           </span>
@@ -1556,16 +1828,23 @@ function ReservationsPage() {
                               <span className="text-[11px] font-semibold uppercase tracking-widest text-amber-400/90">
                                 Reserved Accommodation
                               </span>
-                              <h4 className="font-serif text-xl font-medium text-white">{selectedRoom.name}</h4>
+                              <h4 className="font-serif text-xl font-medium text-white">
+                                {selectedRoom.name}
+                              </h4>
                               <p className="text-xs text-slate-300">
-                                Bedding: <strong className="text-white font-medium">{selectedRoomDetails?.beds ?? "King Bed"}</strong> · Standard Occupancy: {selectedRoom.capacity} Guests
+                                Bedding:{" "}
+                                <strong className="text-white font-medium">
+                                  {selectedRoomDetails?.beds ?? "King Bed"}
+                                </strong>{" "}
+                                · Standard Occupancy: {selectedRoom.capacity} Guests
                               </p>
                             </div>
                           </div>
                           <div className="text-left sm:text-right">
                             <span className="text-xs text-slate-400">Direct Nightly Tariff</span>
                             <p className="font-serif text-lg font-medium text-amber-300">
-                              {formatCurrency(selectedRoom.price_per_night)} <span className="text-xs font-normal text-slate-400">/ night</span>
+                              {formatCurrency(selectedRoom.price_per_night)}{" "}
+                              <span className="text-xs font-normal text-slate-400">/ night</span>
                             </p>
                           </div>
                         </div>
@@ -1583,10 +1862,7 @@ function ReservationsPage() {
                               "Free Highway Parking",
                               "100% Generator Backup",
                             ].map((inc) => (
-                              <span
-                                key={inc}
-                                className="pill-tag text-[11px]"
-                              >
+                              <span key={inc} className="pill-tag text-[11px]">
                                 <span className="text-amber-400 text-xs">✓</span> {inc}
                               </span>
                             ))}
@@ -1597,29 +1873,45 @@ function ReservationsPage() {
                       {/* Section 3: Stay Schedule */}
                       <div className="grid gap-4 sm:grid-cols-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-5 text-center">
                         <div className="sm:border-r sm:border-white/[0.06]">
-                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Check-in</span>
-                          <span className="mt-1 block text-sm font-medium text-white">{safePrettyDate(checkIn)}</span>
-                          <span className="text-[10px] text-amber-300 font-medium">From 12:00 PM</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">
+                            Check-in
+                          </span>
+                          <span className="mt-1 block text-sm font-medium text-white">
+                            {safePrettyDate(checkIn)}
+                          </span>
+                          <span className="text-[10px] text-amber-300 font-medium">
+                            From 12:00 PM
+                          </span>
                         </div>
                         <div className="sm:border-r sm:border-white/[0.06]">
-                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Check-out</span>
-                          <span className="mt-1 block text-sm font-medium text-white">{safePrettyDate(checkOut)}</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">
+                            Check-out
+                          </span>
+                          <span className="mt-1 block text-sm font-medium text-white">
+                            {safePrettyDate(checkOut)}
+                          </span>
                           <span className="text-[10px] text-slate-400">Until 11:00 AM</span>
                         </div>
                         <div className="sm:border-r sm:border-white/[0.06]">
-                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Duration</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">
+                            Duration
+                          </span>
                           <span className="mt-1 block text-sm font-medium text-amber-300">
                             {nights} {nights === 1 ? "Night" : "Nights"}
                           </span>
                           <span className="text-[10px] text-slate-400">Direct booking</span>
                         </div>
                         <div>
-                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">Total Guests</span>
+                          <span className="block text-[11px] uppercase tracking-wider text-slate-400">
+                            Total Guests
+                          </span>
                           <span className="mt-1 block text-sm font-medium text-white">
                             {adults} {adults === 1 ? "Adult" : "Adults"}
                             {children > 0 ? `, ${children} Child` : ""}
                           </span>
-                          <span className="text-[10px] text-slate-400">{rooms} {rooms === 1 ? "Room" : "Rooms"}</span>
+                          <span className="text-[10px] text-slate-400">
+                            {rooms} {rooms === 1 ? "Room" : "Rooms"}
+                          </span>
                         </div>
                       </div>
 
@@ -1632,7 +1924,10 @@ function ReservationsPage() {
                         <div className="space-y-2 text-xs">
                           <div className="flex justify-between text-slate-300">
                             <span>
-                              {selectedRoom.name} Room Tariff ({nights} {nights === 1 ? "night" : "nights"} × {formatCurrency(selectedRoom.price_per_night)}{rooms > 1 ? ` × ${rooms} rooms` : ""})
+                              {selectedRoom.name} Room Tariff ({nights}{" "}
+                              {nights === 1 ? "night" : "nights"} ×{" "}
+                              {formatCurrency(selectedRoom.price_per_night)}
+                              {rooms > 1 ? ` × ${rooms} rooms` : ""})
                             </span>
                             <span className="font-medium text-white">
                               {formatCurrency(roomTariffTotal)}
@@ -1641,7 +1936,8 @@ function ReservationsPage() {
                           {extraBedTotal > 0 && (
                             <div className="flex justify-between text-slate-300">
                               <span>
-                                {extraBedsLabel} ({nights} {nights === 1 ? "night" : "nights"} × {formatCurrency(extraBedPricePerNight)})
+                                {extraBedsLabel} ({nights} {nights === 1 ? "night" : "nights"} ×{" "}
+                                {formatCurrency(extraBedPricePerNight)})
                               </span>
                               <span className="font-medium text-white">
                                 {formatCurrency(extraBedTotal)}
@@ -1659,21 +1955,42 @@ function ReservationsPage() {
                           <div className="border-t border-white/[0.08] pt-2 flex justify-between text-sm">
                             <span className="font-medium text-white">Total Estimated Tariff</span>
                             <span className="font-serif text-lg font-medium text-amber-300">
-                              {formatCurrency(totalTariffAmount > 0 ? totalTariffAmount : confirmation.estimated_total)}
+                              {formatCurrency(
+                                totalTariffAmount > 0
+                                  ? totalTariffAmount
+                                  : confirmation.estimated_total,
+                              )}
                             </span>
                           </div>
                           <div className="flex justify-between text-slate-300 pt-1">
                             <span>Advance Deposit Recorded:</span>
-                            <span className={`font-medium ${paymentSuccess ? "text-emerald-400" : "text-slate-400"}`}>
-                              {paymentSuccess ? formatCurrency(payAmount) : "Pending (Pay at Reception)"}
+                            <span
+                              className={`font-medium ${paymentSuccess ? "text-emerald-400" : "text-slate-400"}`}
+                            >
+                              {paymentSuccess
+                                ? formatCurrency(payAmount)
+                                : "Pending (Pay at Reception)"}
                             </span>
                           </div>
                           <div className="border-t border-white/[0.08] pt-2 flex justify-between text-sm">
-                            <span className="font-semibold text-white">Balance Due at Check-in:</span>
+                            <span className="font-semibold text-white">
+                              Balance Due at Check-in:
+                            </span>
                             <span className="font-serif text-base font-semibold text-amber-300">
                               {paymentSuccess
-                                ? formatCurrency(Math.max(0, (totalTariffAmount > 0 ? totalTariffAmount : confirmation.estimated_total) - payAmount))
-                                : formatCurrency(totalTariffAmount > 0 ? totalTariffAmount : confirmation.estimated_total)}
+                                ? formatCurrency(
+                                    Math.max(
+                                      0,
+                                      (totalTariffAmount > 0
+                                        ? totalTariffAmount
+                                        : confirmation.estimated_total) - payAmount,
+                                    ),
+                                  )
+                                : formatCurrency(
+                                    totalTariffAmount > 0
+                                      ? totalTariffAmount
+                                      : confirmation.estimated_total,
+                                  )}
                             </span>
                           </div>
                         </div>
@@ -1682,13 +1999,22 @@ function ReservationsPage() {
                       {/* Section 5: Reception Check-in Guidelines */}
                       <div className="border-t border-white/[0.08] pt-4 text-xs text-slate-400 space-y-1.5">
                         <p>
-                          📌 <strong>Check-in Policy:</strong> Standard check-in time is 12:00 PM. Please present your booking reference (<strong className="text-amber-300 font-mono">{confirmation.reference}</strong>) along with a valid Government Photo ID (Aadhaar, Passport, or Driving License) for all adult guests at reception.
+                          📌 <strong>Check-in Policy:</strong> Standard check-in time is 12:00 PM.
+                          Please present your booking reference (
+                          <strong className="text-amber-300 font-mono">
+                            {confirmation.reference}
+                          </strong>
+                          ) along with a valid Government Photo ID (Aadhaar, Passport, or Driving
+                          License) for all adult guests at reception.
                         </p>
                         <p>
-                          🍳 <strong>Breakfast Timings:</strong> Fresh coastal vegetarian & non-vegetarian breakfast is served daily from 7:30 AM to 10:30 AM.
+                          🍳 <strong>Breakfast Timings:</strong> Fresh coastal vegetarian &
+                          non-vegetarian breakfast is served daily from 7:30 AM to 10:30 AM.
                         </p>
                         <p>
-                          🚗 <strong>Parking & Directions:</strong> Free dedicated on-site parking is available directly in front of the hotel on Nitte Main Road (opposite campus junction).
+                          🚗 <strong>Parking & Directions:</strong> Free dedicated on-site parking
+                          is available directly in front of the hotel on Nitte Main Road (opposite
+                          campus junction).
                         </p>
                       </div>
 
@@ -1696,13 +2022,21 @@ function ReservationsPage() {
                       <div className="hidden print-only print:block border-t-2 border-slate-300 pt-6 mt-6">
                         <div className="flex justify-between items-end text-xs text-slate-700">
                           <div>
-                            <p className="font-semibold text-slate-900">Hotel Ratna Forever — Front Office</p>
-                            <p className="text-[10px] text-slate-500">Authorized Computer Generated Folio Voucher</p>
-                            <p className="text-[10px] text-slate-500">GSTIN: 29AABFR1234F1Z8 · Reg: RATNA-KA-2024</p>
+                            <p className="font-semibold text-slate-900">
+                              Hotel Ratna Forever — Front Office
+                            </p>
+                            <p className="text-[10px] text-slate-500">
+                              Authorized Computer Generated Folio Voucher
+                            </p>
+                            <p className="text-[10px] text-slate-500">
+                              GSTIN: 29AABFR1234F1Z8 · Reg: RATNA-KA-2024
+                            </p>
                           </div>
                           <div className="text-right">
                             <div className="h-12 w-36 border-b border-dashed border-slate-400 mb-1 inline-block" />
-                            <p className="font-bold text-slate-900">Duty Manager / Reception Stamp</p>
+                            <p className="font-bold text-slate-900">
+                              Duty Manager / Reception Stamp
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -1721,7 +2055,8 @@ function ReservationsPage() {
                         </h3>
                       </div>
                       <p className="mt-1 text-sm text-slate-400">
-                        Paying a small advance (recommended ₹500 - ₹1,000) guarantees priority room allocation upon your arrival.
+                        Paying a small advance (recommended ₹500 - ₹1,000) guarantees priority room
+                        allocation upon your arrival.
                       </p>
                     </div>
 
@@ -1734,7 +2069,9 @@ function ReservationsPage() {
                               Hotel UPI Handle
                             </span>
                             <div className="mt-2 flex items-center justify-between rounded-xl border border-white/[0.08] bg-white/[0.03] p-3">
-                              <span className="font-mono text-sm text-amber-300 font-medium">{UPI_ID}</span>
+                              <span className="font-mono text-sm text-amber-300 font-medium">
+                                {UPI_ID}
+                              </span>
                               <span className="text-xs text-slate-400">{UPI_NAME}</span>
                             </div>
                           </div>
@@ -1771,8 +2108,18 @@ function ReservationsPage() {
                               className="champagne-btn flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-xs uppercase tracking-wider"
                             >
                               <span>Open UPI App to Pay {formatCurrency(payAmount)}</span>
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              <svg
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                />
                               </svg>
                             </a>
                             <p className="mt-2 text-center text-xs text-slate-500">
@@ -1783,9 +2130,12 @@ function ReservationsPage() {
 
                         {/* Submit UTR */}
                         <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
-                          <h4 className="text-sm font-medium text-white">Record Transaction Number (UTR)</h4>
+                          <h4 className="text-sm font-medium text-white">
+                            Record Transaction Number (UTR)
+                          </h4>
                           <p className="mt-1 text-xs text-slate-400">
-                            After completing the UPI transfer, enter the 12-digit UTR or Transaction Ref ID so our accounts team can log it against your reservation.
+                            After completing the UPI transfer, enter the 12-digit UTR or Transaction
+                            Ref ID so our accounts team can log it against your reservation.
                           </p>
 
                           <form onSubmit={handleRecordNewPayment} className="mt-4 space-y-4">
@@ -1823,7 +2173,8 @@ function ReservationsPage() {
                           ✓ Payment details recorded against booking {confirmation.reference}!
                         </p>
                         <p className="mt-1 text-xs text-slate-300">
-                          Our reception will reconcile this upon your check-in. Have a pleasant stay!
+                          Our reception will reconcile this upon your check-in. Have a pleasant
+                          stay!
                         </p>
                       </div>
                     )}
@@ -1833,8 +2184,18 @@ function ReservationsPage() {
                         href={`tel:${PHONE}`}
                         className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-amber-300"
                       >
-                        <svg className="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        <svg
+                          className="h-4 w-4 text-amber-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                          />
                         </svg>
                         Need assistance? Call Front Desk: {PHONE_DISPLAY}
                       </a>
@@ -1855,9 +2216,12 @@ function ReservationsPage() {
           {activeTab === "manage" && (
             <div className="editorial-card rounded-2xl p-6 sm:p-10 space-y-8">
               <div>
-                <h2 className="font-serif text-2xl font-medium text-white">Find Existing Reservation</h2>
+                <h2 className="font-serif text-2xl font-medium text-white">
+                  Find Existing Reservation
+                </h2>
                 <p className="mt-1 text-sm text-slate-400">
-                  Enter your booking reference code and the phone number provided during booking to check status or record an advance payment.
+                  Enter your booking reference code and the phone number provided during booking to
+                  check status or record an advance payment.
                 </p>
               </div>
 
@@ -1912,8 +2276,12 @@ function ReservationsPage() {
                 <div className="editorial-card rounded-xl border border-white/[0.08] p-6 space-y-6">
                   <div className="flex flex-col justify-between gap-4 border-b border-white/[0.08] pb-4 sm:flex-row sm:items-center">
                     <div>
-                      <span className="text-[11px] uppercase tracking-widest text-slate-400">Reference</span>
-                      <h3 className="font-mono text-2xl font-bold text-amber-300">{lookupBookingData.reference}</h3>
+                      <span className="text-[11px] uppercase tracking-widest text-slate-400">
+                        Reference
+                      </span>
+                      <h3 className="font-mono text-2xl font-bold text-amber-300">
+                        {lookupBookingData.reference}
+                      </h3>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="rounded-full bg-amber-400/10 border border-amber-400/20 px-3 py-1 text-xs font-medium text-amber-300">
@@ -1933,7 +2301,8 @@ function ReservationsPage() {
                     <div>
                       <span className="block text-xs text-slate-500">Dates</span>
                       <span className="font-medium text-white">
-                        {safePrettyDate(lookupBookingData.check_in)} → {safePrettyDate(lookupBookingData.check_out)}
+                        {safePrettyDate(lookupBookingData.check_in)} →{" "}
+                        {safePrettyDate(lookupBookingData.check_out)}
                       </span>
                     </div>
                     <div>
@@ -1942,7 +2311,9 @@ function ReservationsPage() {
                     </div>
                     <div>
                       <span className="block text-xs text-slate-500">Estimated Total</span>
-                      <span className="font-medium text-amber-300">{formatCurrency(lookupBookingData.estimated_total)}</span>
+                      <span className="font-medium text-amber-300">
+                        {formatCurrency(lookupBookingData.estimated_total)}
+                      </span>
                     </div>
                   </div>
 
@@ -1988,9 +2359,12 @@ function ReservationsPage() {
 
                   {/* Pay Advance for looked up booking */}
                   <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 space-y-4">
-                    <h4 className="text-sm font-medium text-white">Pay Advance for this Reservation</h4>
+                    <h4 className="text-sm font-medium text-white">
+                      Pay Advance for this Reservation
+                    </h4>
                     <p className="text-xs text-slate-400">
-                      Send payment via UPI to <strong className="text-amber-300">{UPI_ID}</strong> ({UPI_NAME}) and submit the transaction ID below.
+                      Send payment via UPI to <strong className="text-amber-300">{UPI_ID}</strong> (
+                      {UPI_NAME}) and submit the transaction ID below.
                     </p>
 
                     {!managePaySuccess ? (
@@ -2005,7 +2379,9 @@ function ReservationsPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-slate-400">12-Digit UTR / Ref ID *</label>
+                          <label className="block text-xs text-slate-400">
+                            12-Digit UTR / Ref ID *
+                          </label>
                           <input
                             type="text"
                             required
@@ -2024,11 +2400,14 @@ function ReservationsPage() {
                             {manageSubmittingPay ? "Saving..." : "Submit UTR"}
                           </button>
                         </div>
-                        {managePayError && <p className="text-xs text-rose-400 sm:col-span-3">{managePayError}</p>}
+                        {managePayError && (
+                          <p className="text-xs text-rose-400 sm:col-span-3">{managePayError}</p>
+                        )}
                       </form>
                     ) : (
                       <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-300 text-center">
-                        ✓ Payment details saved successfully! Our reception team will verify upon check-in.
+                        ✓ Payment details saved successfully! Our reception team will verify upon
+                        check-in.
                       </div>
                     )}
                   </div>
@@ -2036,7 +2415,6 @@ function ReservationsPage() {
               )}
             </div>
           )}
-
         </div>
       </section>
     </div>
