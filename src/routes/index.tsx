@@ -438,7 +438,7 @@ function HomePage() {
           </div>
 
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {gallery.slice(0, 6).map((item) => (
+            {gallery.map((item) => (
               <div
                 key={item.title}
                 className="group relative overflow-hidden rounded-2xl shadow-xl ring-1 ring-white/10"
