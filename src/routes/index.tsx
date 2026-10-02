@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import heroExterior from "@/assets/real-exterior.jpg";
+import realLobby from "@/assets/real-lounge.jpg";
 import { PHONE, PHONE_DISPLAY, rooms, dishes, facilities, reviews, gallery } from "@/lib/site-data";
 
 export const Route = createFileRoute("/")({
@@ -371,8 +372,8 @@ function HomePage() {
                   </div>
                   <div className="overflow-hidden rounded-2xl shadow-xl">
                     <img
-                      src={gallery[3]?.src}
-                      alt="Lobby lounge & dining"
+                      src={realLobby}
+                      alt="Lobby & reception"
                       className="h-64 w-full object-cover transition-transform duration-500 hover:scale-105"
                     />
                   </div>
