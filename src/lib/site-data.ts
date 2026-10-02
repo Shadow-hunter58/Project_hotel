@@ -7,6 +7,10 @@ import realHall from "@/assets/real-hall.jpg";
 import realMeeting from "@/assets/real-meeting.jpg";
 import realSuiteDining from "@/assets/real-suite-dining.jpg";
 import realEventStage from "@/assets/real-event-stage.jpg";
+import realNightEntrance from "@/assets/real-building-front.png";
+import realBlueGlass from "@/assets/real-restaurant.jpg";
+import realPrivateDining from "@/assets/real-private-dining.jpg";
+import realLobby from "@/assets/real-lounge.jpg";
 
 export const PHONE = "+917338088744";
 export const PHONE_DISPLAY = "+91 73380 88744";
@@ -189,5 +193,29 @@ export const gallery = [
     title: "Bedroom",
     note: "AC room with king bed, phone, seating and 24-hour hot water",
     alt: "Air-conditioned bedroom with a king bed, red drapes and a wooden seating set",
+  },
+  {
+    src: realNightEntrance,
+    title: "Night entrance",
+    note: "Illuminated facade and parking area welcoming late-night guests",
+    alt: "Hotel Ratna Forever entrance lit up at night with cars parked in front",
+  },
+  {
+    src: realBlueGlass,
+    title: "Blue-glass tower",
+    note: "Signature blue-glass curtain wall visible from the Nitte main road",
+    alt: "Full view of Hotel Ratna Forever blue glass tower building during the day",
+  },
+  {
+    src: realPrivateDining,
+    title: "Private dining room",
+    note: "Intimate dining setup with projector for small gatherings",
+    alt: "Private dining room at Hotel Ratna Forever with red sofa chairs, laid tables and a projector",
+  },
+  {
+    src: realLobby,
+    title: "Lobby & reception",
+    note: "Spacious lobby with comfortable seating, TV, fish tank and 24/7 front desk",
+    alt: "Hotel Ratna Forever lobby with brown sofas, magazines table, front desk counter and fish tank",
   },
 ];
