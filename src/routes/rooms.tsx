@@ -9,13 +9,13 @@ export const Route = createFileRoute("/rooms")({
       {
         name: "description",
         content:
-          "Explore Deluxe, Executive, and Family Suite rooms at Hotel Ratna Forever, Nitte. Spotless air-conditioned comfort, premium bedding, 24-hr hot water, free high-speed Wi-Fi and coastal breakfast.",
+          "Explore Deluxe, Service Room, and Executive rooms at Hotel Ratna Forever, Nitte. Available in AC and Non-AC options. Spotless comfort, premium bedding, 24-hr hot water, free high-speed Wi-Fi and coastal breakfast.",
       },
       { property: "og:title", content: "Accommodations & Suites — Hotel Ratna Forever, Nitte" },
       {
         property: "og:description",
         content:
-          "Air-conditioned Deluxe, Executive and Family Suite rooms from ₹1,899 a night with breakfast, Wi-Fi and free parking.",
+          "Deluxe, Service Room and Executive rooms in AC & Non-AC options, from ₹699 a night with breakfast, Wi-Fi and free parking.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -143,17 +143,34 @@ function RoomsPage() {
                   </div>
 
                   <div className="border-t border-white/[0.08] pt-5">
-                    <div className="flex items-baseline justify-between">
-                      <div>
-                        <span className="text-xs text-slate-400">Nightly Tariff</span>
-                        <div className="mt-0.5 flex items-baseline gap-1.5">
-                          <span className="font-serif text-2xl font-semibold text-amber-400 sm:text-3xl">
-                            {room.price}
-                          </span>
-                          <span className="text-xs text-slate-400">/ night</span>
-                        </div>
+                    <div>
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                        Nightly Tariff
+                      </span>
+                      <div className="mt-2 flex flex-wrap gap-3">
+                        {room.acVariants.map((variant) => (
+                          <div
+                            key={variant.label}
+                            className="flex items-baseline gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2"
+                          >
+                            <span className="text-xs text-slate-400">
+                              {variant.label === "AC" ? "❄️" : "🌀"} {variant.label}:
+                            </span>
+                            <span className="font-serif text-lg font-semibold text-amber-400">
+                              {variant.priceDisplay}
+                            </span>
+                            <span className="text-xs text-slate-500">/ night</span>
+                          </div>
+                        ))}
                       </div>
-                      <span className="text-xs text-emerald-400 font-medium">Free Breakfast Included</span>
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="text-xs text-emerald-400 font-medium">Free Breakfast Included</span>
+                        {room.name.toLowerCase().includes("service") && (
+                          <span className="rounded-full bg-amber-400/10 border border-amber-400/30 px-2.5 py-0.5 text-[10px] font-medium text-amber-300">
+                            Combo with Deluxe available
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="mt-6 flex items-center gap-3">

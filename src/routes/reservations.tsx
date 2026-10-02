@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/SiteChrome";
 import ratnaLogo from "@/assets/ratna-logo.png";
-import { PHONE, PHONE_DISPLAY, UPI_ID, UPI_NAME, rooms as localRooms } from "@/lib/site-data";
+import { PHONE, PHONE_DISPLAY, UPI_ID, UPI_NAME, rooms as localRooms, serviceRoomOptions, type AcVariant } from "@/lib/site-data";
 import {
   createBooking,
   fetchAvailability,
@@ -98,6 +98,11 @@ function ReservationsPage() {
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
+
+  // AC/Non-AC preference
+  const [acPreference, setAcPreference] = useState<"AC" | "Non-AC">("AC");
+  // Service Room combo choice (only relevant when Service Room is selected)
+  const [serviceRoomChoice, setServiceRoomChoice] = useState<"service_only" | "service_with_deluxe">("service_only");
   
   // Structured Special Request & Extra Bed Dropdown State
   const [extraBedOption, setExtraBedOption] = useState<"0" | "1" | "2" | "other">("0");
@@ -143,6 +148,27 @@ function ReservationsPage() {
     return Math.max(1, Math.round((tOut - tIn) / 86400000));
   }, [checkIn, checkOut]);
 
+  // Determine current room's AC variant pricing
+  const selectedLocalRoom = useMemo(() => {
+    if (!selectedRoom) return null;
+    return localRooms.find((r) => r.name.toLowerCase() === selectedRoom.name.toLowerCase()) ?? localRooms[0];
+  }, [selectedRoom]);
+
+  const selectedAcVariant = useMemo((): AcVariant | null => {
+    if (!selectedLocalRoom) return null;
+    return selectedLocalRoom.acVariants.find((v) => v.label === acPreference) ?? selectedLocalRoom.acVariants[0];
+  }, [selectedLocalRoom, acPreference]);
+
+  const isServiceRoom = useMemo(() => {
+    return selectedRoom?.name.toLowerCase().includes("service") ?? false;
+  }, [selectedRoom]);
+
+  const serviceComboAddon = useMemo(() => {
+    if (!isServiceRoom) return 0;
+    const opt = serviceRoomOptions.find((o) => o.id === serviceRoomChoice);
+    return opt?.priceAddon ?? 0;
+  }, [isServiceRoom, serviceRoomChoice]);
+
   // Pricing calculations
   const extraBedPricePerNight = useMemo(() => {
     if (extraBedOption === "1") return 500;
@@ -153,9 +179,10 @@ function ReservationsPage() {
   const extraBedTotal = useMemo(() => extraBedPricePerNight * nights, [extraBedPricePerNight, nights]);
 
   const roomTariffTotal = useMemo(() => {
-    if (!selectedRoom) return 0;
-    return selectedRoom.price_per_night * nights * rooms;
-  }, [selectedRoom, nights, rooms]);
+    if (!selectedAcVariant) return 0;
+    const basePrice = selectedAcVariant.pricePerNight;
+    return (basePrice + serviceComboAddon) * nights * rooms;
+  }, [selectedAcVariant, nights, rooms, serviceComboAddon]);
 
   const totalTariffAmount = useMemo(() => {
     return roomTariffTotal + extraBedTotal;
@@ -185,13 +212,18 @@ function ReservationsPage() {
 
   const compiledNotesForBooking = useMemo(() => {
     const parts: string[] = [];
+    parts.push(`Cooling: ${acPreference}`);
+    if (isServiceRoom) {
+      const comboLabel = serviceRoomOptions.find((o) => o.id === serviceRoomChoice)?.label ?? serviceRoomChoice;
+      parts.push(`Service Option: ${comboLabel}`);
+    }
     if (extraBedsLabel) parts.push(`Bedding: ${extraBedsLabel}`);
     if (specialRequestsLabel) parts.push(`Request: ${specialRequestsLabel}`);
     if (customNotes.trim() && !specialRequestsLabel?.includes(customNotes.trim())) {
       parts.push(`Notes: ${customNotes.trim()}`);
     }
     return parts.join(" | ");
-  }, [extraBedsLabel, specialRequestsLabel, customNotes]);
+  }, [acPreference, isServiceRoom, serviceRoomChoice, extraBedsLabel, specialRequestsLabel, customNotes]);
 
   const formatPhoneForWhatsApp = (raw: string) => {
     const cleaned = raw.replace(/\D/g, "");
@@ -238,12 +270,7 @@ function ReservationsPage() {
     }
   };
 
-  const selectedRoomDetails = useMemo(() => {
-    if (!selectedRoom) return null;
-    return (
-      localRooms.find((r) => r.name.toLowerCase() === selectedRoom.name.toLowerCase()) ?? localRooms[0]
-    );
-  }, [selectedRoom]);
+  const selectedRoomDetails = selectedLocalRoom;
 
   const confirmationReceiptText = useMemo(() => {
     if (!confirmation || !selectedRoom) return "";
@@ -791,7 +818,7 @@ function ReservationsPage() {
 
                   {adults + children > 2 && (
                     <div className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3.5 text-xs text-amber-200">
-                      💡 <strong>Capacity Advice for {adults + children} Guests:</strong> Standard Deluxe/Executive rooms accommodate 2 guests per room. You can reserve <strong>{rooms} {rooms === 1 ? "Room" : "Rooms"}</strong> or select our <strong>Family Suite</strong> (up to 4 guests) or add an <strong>Extra Bed / Mattress</strong> in Step 3.
+                      💡 <strong>Capacity Advice for {adults + children} Guests:</strong> Standard rooms accommodate 2 guests per room. You can reserve <strong>{rooms} {rooms === 1 ? "Room" : "Rooms"}</strong>, choose our <strong>Service Room + Deluxe combo</strong> for extra space, or add an <strong>Extra Bed / Mattress</strong> in Step 3.
                     </div>
                   )}
 
@@ -992,6 +1019,88 @@ function ReservationsPage() {
                   </div>
 
                   <form onSubmit={handleConfirmBooking} className="mt-6 space-y-6">
+                    {/* ── AC / Non-AC Preference ── */}
+                    <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90 mb-3">
+                        Cooling Preference
+                      </label>
+                      <div className="flex gap-3">
+                        {(["AC", "Non-AC"] as const).map((opt) => (
+                          <button
+                            key={opt}
+                            type="button"
+                            onClick={() => setAcPreference(opt)}
+                            className={`flex-1 rounded-xl border py-3 text-sm font-medium transition-all ${
+                              acPreference === opt
+                                ? "border-amber-400/60 bg-amber-400/15 text-amber-300 ring-1 ring-amber-400/30"
+                                : "border-white/[0.08] bg-white/[0.03] text-slate-400 hover:border-white/20 hover:text-slate-200"
+                            }`}
+                          >
+                            <span className="block text-base">{opt === "AC" ? "❄️" : "🌀"}</span>
+                            <span className="mt-1 block">{opt}</span>
+                            {selectedLocalRoom && (
+                              <span className="mt-0.5 block text-xs opacity-70">
+                                {selectedLocalRoom.acVariants.find((v) => v.label === opt)?.priceDisplay ?? ""}/night
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* ── Service Room Combo Options (only for Service Room) ── */}
+                    {isServiceRoom && (
+                      <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90 mb-3">
+                          Service Room Option
+                        </label>
+                        <div className="space-y-3">
+                          {serviceRoomOptions.map((opt) => (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              onClick={() => setServiceRoomChoice(opt.id)}
+                              className={`w-full rounded-xl border p-4 text-left transition-all ${
+                                serviceRoomChoice === opt.id
+                                  ? "border-amber-400/60 bg-amber-400/15 ring-1 ring-amber-400/30"
+                                  : "border-white/[0.08] bg-white/[0.03] hover:border-white/20"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className={`text-sm font-medium ${serviceRoomChoice === opt.id ? "text-amber-300" : "text-slate-200"}`}>
+                                  {opt.label}
+                                </span>
+                                {opt.priceAddon > 0 && (
+                                  <span className="text-xs text-amber-400/80">
+                                    +{formatCurrency(opt.priceAddon)}/night
+                                  </span>
+                                )}
+                              </div>
+                              <p className="mt-1 text-xs text-slate-400">{opt.description}</p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── Updated pricing summary ── */}
+                    {selectedAcVariant && (
+                      <div className="rounded-xl border border-emerald-500/20 bg-emerald-950/20 p-4 text-xs text-emerald-200">
+                        <div className="flex items-center justify-between">
+                          <span>
+                            {selectedRoom.name} ({acPreference})
+                            {isServiceRoom && serviceRoomChoice === "service_with_deluxe" ? " + Deluxe Room" : ""}
+                          </span>
+                          <span className="font-semibold text-emerald-300">
+                            {formatCurrency((selectedAcVariant.pricePerNight + serviceComboAddon) * nights * rooms)}
+                          </span>
+                        </div>
+                        <div className="mt-1 text-emerald-400/60">
+                          {formatCurrency(selectedAcVariant.pricePerNight + serviceComboAddon)}/night × {nights} {nights === 1 ? "night" : "nights"} × {rooms} {rooms === 1 ? "room" : "rooms"}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="grid gap-5 sm:grid-cols-2">
                       <div className="sm:col-span-2">
                         <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
