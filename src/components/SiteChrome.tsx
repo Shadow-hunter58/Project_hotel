@@ -26,6 +26,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
         <Link
           to="/"
+          preload="intent"
           className="group flex items-center gap-3.5 leading-tight text-white transition-opacity hover:opacity-95"
         >
           <div className="relative overflow-hidden rounded-md bg-white/95 p-1.5 shadow-md ring-1 ring-amber-400/30 transition-transform group-hover:scale-[1.02]">
@@ -53,6 +54,7 @@ export function SiteHeader() {
             <Link
               key={item.to}
               to={item.to}
+              preload="intent"
               activeProps={{ className: "text-amber-400 font-semibold" }}
               activeOptions={{ exact: item.to === "/" }}
               className="relative text-sm font-medium tracking-wide text-slate-200 transition-colors hover:text-amber-400"
@@ -86,6 +88,7 @@ export function SiteHeader() {
 
           <Link
             to="/reservations"
+            preload="intent"
             className="shimmer-btn inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-slate-950 shadow-lg shadow-amber-500/20 transition-all hover:shadow-amber-500/40 hover:brightness-110 active:scale-95"
           >
             <span>Reservations</span>
@@ -130,6 +133,7 @@ export function SiteHeader() {
               <Link
                 key={item.to}
                 to={item.to}
+                preload="intent"
                 onClick={() => setOpen(false)}
                 activeProps={{ className: "text-amber-400 font-bold pl-2" }}
                 activeOptions={{ exact: item.to === "/" }}
@@ -142,6 +146,7 @@ export function SiteHeader() {
           <div className="mt-5 space-y-3 pt-2">
             <Link
               to="/reservations"
+              preload="intent"
               onClick={() => setOpen(false)}
               className="shimmer-btn flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 py-3.5 text-center text-xs font-bold uppercase tracking-[0.16em] text-slate-950 shadow-lg"
             >
