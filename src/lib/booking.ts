@@ -337,7 +337,6 @@ export function formatReceiptText(details: ReceiptDetails): string {
     `🛏️ *Room Details:*`,
     `• Accommodations: ${roomsText}`,
     `• Inclusions: Split AC, 24-hr Hot Water, Wi-Fi, Breakfast Included`,
-    ...(details.extraBedsLabel ? [`• Extra Bedding: ${details.extraBedsLabel}`] : []),
     ...(details.specialRequestsLabel
       ? [`• Special Preferences: ${details.specialRequestsLabel}`]
       : []),
