@@ -118,8 +118,7 @@ function ReservationsPage() {
     "service_only" | "service_with_deluxe"
   >("service_only");
 
-  // Structured Special Request & Extra Bed Dropdown State
-  const [extraBedOption, setExtraBedOption] = useState<"0" | "1" | "2" | "other">("0");
+  // Structured Special Request Dropdown State
   const [specialRequestOption, setSpecialRequestOption] = useState<
     "none" | "early_checkin" | "quiet_room" | "ground_floor" | "campus_visit" | "other"
   >("none");
@@ -191,33 +190,16 @@ function ReservationsPage() {
   }, [isServiceRoom, serviceRoomChoice]);
 
   // Pricing calculations
-  const extraBedPricePerNight = useMemo(() => {
-    if (extraBedOption === "1") return 500;
-    if (extraBedOption === "2") return 1000;
-    return 0;
-  }, [extraBedOption]);
-
-  const extraBedTotal = useMemo(
-    () => extraBedPricePerNight * nights,
-    [extraBedPricePerNight, nights],
-  );
-
   const roomTariffTotal = useMemo(() => {
     if (!selectedAcVariant) return 0;
     const basePrice = selectedAcVariant.pricePerNight;
     return (basePrice + serviceComboAddon) * nights * rooms;
   }, [selectedAcVariant, nights, rooms, serviceComboAddon]);
 
-  const totalTariffAmount = useMemo(() => {
-    return roomTariffTotal + extraBedTotal;
-  }, [roomTariffTotal, extraBedTotal]);
-
-  const extraBedsLabel = useMemo(() => {
-    if (extraBedOption === "1") return "1 Extra Rollaway Bed / Mattress (+₹500/night)";
-    if (extraBedOption === "2") return "2 Extra Rollaway Beds / Mattresses (+₹1,000/night)";
-    if (extraBedOption === "other") return "Custom Bedding Request";
-    return undefined;
-  }, [extraBedOption]);
+  const totalTariffAmount = roomTariffTotal;
+  const extraBedTotal = 0;
+  const extraBedPricePerNight = 0;
+  const extraBedsLabel = undefined;
 
   const specialRequestsLabel = useMemo(() => {
     const map: Record<string, string> = {
@@ -880,8 +862,7 @@ function ReservationsPage() {
                       <strong>
                         {rooms} {rooms === 1 ? "Room" : "Rooms"}
                       </strong>
-                      , choose our <strong>Service Room + Deluxe combo</strong> for extra space, or
-                      add an <strong>Extra Bed / Mattress</strong> in Step 3.
+                      , or choose our <strong>Service Room + Deluxe combo</strong> for extra space.
                     </div>
                   )}
 
@@ -1273,32 +1254,6 @@ function ReservationsPage() {
 
                       <div>
                         <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
-                          Extra Bed / Mattress Requirement
-                        </label>
-                        <select
-                          value={extraBedOption}
-                          onChange={(e) =>
-                            setExtraBedOption(e.target.value as "0" | "1" | "2" | "other")
-                          }
-                          className="mt-2 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
-                        >
-                          <option value="0" className="bg-slate-900 text-white">
-                            No Extra Bed (Standard Bedding)
-                          </option>
-                          <option value="1" className="bg-slate-900 text-white">
-                            1 Extra Rollaway Bed / Mattress (+₹500 / night)
-                          </option>
-                          <option value="2" className="bg-slate-900 text-white">
-                            2 Extra Beds / Mattresses (+₹1,000 / night)
-                          </option>
-                          <option value="other" className="bg-slate-900 text-white">
-                            Other Bedding Request...
-                          </option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
                           Special Request / Stay Preference
                         </label>
                         <select
@@ -1339,7 +1294,7 @@ function ReservationsPage() {
 
                       <div className="sm:col-span-2">
                         <label className="block text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
-                          {extraBedOption === "other" || specialRequestOption === "other"
+                          {specialRequestOption === "other"
                             ? "Other Details & Specific Requirements *"
                             : "Additional Notes / Arrival Time (Optional)"}
                         </label>
@@ -1348,8 +1303,8 @@ function ReservationsPage() {
                           value={customNotes}
                           onChange={(e) => setCustomNotes(e.target.value)}
                           placeholder={
-                            extraBedOption === "other" || specialRequestOption === "other"
-                              ? "Please describe your custom bedding, extra guest, or stay requirement details..."
+                            specialRequestOption === "other"
+                              ? "Please describe your custom request or stay requirement details..."
                               : "Estimated arrival time, dietary requests, or campus visit details..."
                           }
                           className="mt-2 w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-amber-400/70"
@@ -1421,11 +1376,6 @@ function ReservationsPage() {
                             {nights} {nights === 1 ? "Night" : "Nights"} · {adults + children}{" "}
                             {adults + children === 1 ? "Guest" : "Guests"}
                           </p>
-                          {extraBedTotal > 0 && (
-                            <p className="text-xs text-emerald-400 font-medium">
-                              + {extraBedsLabel} ({formatCurrency(extraBedTotal)})
-                            </p>
-                          )}
                           {specialRequestsLabel && (
                             <p className="text-xs text-amber-300/80">
                               Preference: {specialRequestsLabel}
@@ -1439,11 +1389,7 @@ function ReservationsPage() {
                           </p>
                           <p className="text-[11px] text-slate-400">
                             ({formatCurrency(selectedRoom.price_per_night)} × {nights} nts × {rooms}{" "}
-                            {rooms === 1 ? "rm" : "rms"}
-                            {extraBedTotal > 0
-                              ? ` + ${formatCurrency(extraBedTotal)} extra bed`
-                              : ""}
-                            )
+                            {rooms === 1 ? "rm" : "rms"})
                           </p>
                         </div>
                       </div>
@@ -1933,17 +1879,6 @@ function ReservationsPage() {
                               {formatCurrency(roomTariffTotal)}
                             </span>
                           </div>
-                          {extraBedTotal > 0 && (
-                            <div className="flex justify-between text-slate-300">
-                              <span>
-                                {extraBedsLabel} ({nights} {nights === 1 ? "night" : "nights"} ×{" "}
-                                {formatCurrency(extraBedPricePerNight)})
-                              </span>
-                              <span className="font-medium text-white">
-                                {formatCurrency(extraBedTotal)}
-                              </span>
-                            </div>
-                          )}
                           <div className="flex justify-between text-slate-300">
                             <span>Complimentary Coastal Breakfast (Daily 7:30 – 10:30 AM)</span>
                             <span className="text-emerald-400 font-medium">Included (₹0)</span>
