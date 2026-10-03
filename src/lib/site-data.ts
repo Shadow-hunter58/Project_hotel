@@ -10,7 +10,7 @@ import realEventStage from "@/assets/real-event-stage.jpg";
 import realNightEntrance from "@/assets/real-building-front.png";
 import realBlueGlass from "@/assets/real-restaurant.jpg";
 import realPrivateDining from "@/assets/real-private-dining.jpg";
-import realLobby from "@/assets/real-lounge.jpg";
+import realLobby from "@/assets/real-restaurant.jpg";
 
 export const PHONE = "+917338088744";
 export const PHONE_DISPLAY = "+91 73380 88744";

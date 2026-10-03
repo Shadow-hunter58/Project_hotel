@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import heroExterior from "@/assets/real-exterior.jpg";
-import realLobby from "@/assets/real-lounge.jpg";
+import realLobby from "@/assets/real-restaurant.jpg";
 import { PHONE, PHONE_DISPLAY, rooms, dishes, facilities, reviews, gallery } from "@/lib/site-data";
 
 export const Route = createFileRoute("/")({
